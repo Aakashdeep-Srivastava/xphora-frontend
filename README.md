@@ -9,7 +9,6 @@
 [![Google AI](https://img.shields.io/badge/Google-Gemini%20AI-orange.svg)](https://ai.google.dev/)
 [![Mobile First](https://img.shields.io/badge/Mobile-First-purple.svg)](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps)
 
-**🏆 Winner - Google Agentic AI Day Hackathon 2025**
 
 *Real-time city intelligence powered by coordinated AI agents*
 
