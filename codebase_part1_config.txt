@@ -1,0 +1,1315 @@
+# XphoraPulse Codebase - Part 1: Configuration & Setup
+
+This is part 1 of 5 of the XphoraPulse codebase.
+
+## About This Part
+Project configuration, dependencies, and build setup files
+
+## Project Structure:
+```
+📁 app/
+  📁 (main)/
+    📁 alerts/
+      ⚛️ page.tsx
+    📁 chat/
+      ⚛️ page.tsx
+    📁 dashboard/
+      ⚛️ page.tsx
+    📁 financial-pulse/
+      ⚛️ page.tsx
+    📁 insights/
+      ⚛️ page.tsx
+    📁 map/
+      ⚛️ page.tsx
+    📁 prediction/
+      ⚛️ page.tsx
+    📁 profile/
+      ⚛️ page.tsx
+    📁 report/
+      🔷 action.ts
+      ⚛️ page.tsx
+    ⚛️ layout.tsx
+  📁 setup/
+    ⚛️ page.tsx
+  🎨 globals.css
+  ⚛️ layout.tsx
+  ⚛️ loading.tsx
+  ⚛️ page.tsx
+📁 components/
+  📁 auth/
+    ⚛️ auth-prompt.tsx
+    ⚛️ auth-status-banner.tsx
+    ⚛️ firebase-setup-guide.tsx
+    ⚛️ oauth-debug.tsx
+  📁 core/
+    ⚛️ app-initializer.tsx
+    ⚛️ fi-money-logo.tsx
+    ⚛️ loading-animation.tsx
+  📁 maps/
+    ⚛️ city-map.tsx
+  📁 mobile/
+    ⚛️ app-sidebar.tsx
+    ⚛️ bottom-nav.tsx
+    ⚛️ location-edit-modal.tsx
+    ⚛️ mobile-header.tsx
+  📁 onboarding/
+    ⚛️ welcome-screen.tsx
+  📁 providers/
+    ⚛️ config-validator.tsx
+  📁 ui/
+    ⚛️ accordion.tsx
+    ⚛️ alert-dialog.tsx
+    ⚛️ alert.tsx
+    ⚛️ aspect-ratio.tsx
+    ⚛️ avatar.tsx
+    ⚛️ badge.tsx
+    ⚛️ breadcrumb.tsx
+    ⚛️ button.tsx
+    ⚛️ calendar.tsx
+    ⚛️ card.tsx
+    ⚛️ carousel.tsx
+    ⚛️ chart.tsx
+    ⚛️ checkbox.tsx
+    ⚛️ collapsible.tsx
+    ⚛️ command.tsx
+    ⚛️ context-menu.tsx
+    ⚛️ dialog.tsx
+    ⚛️ drawer.tsx
+    ⚛️ dropdown-menu.tsx
+    ⚛️ form.tsx
+    ⚛️ hover-card.tsx
+    ⚛️ input-otp.tsx
+    ⚛️ input.tsx
+    ⚛️ label.tsx
+    ⚛️ menubar.tsx
+    ⚛️ navigation-menu.tsx
+    ⚛️ pagination.tsx
+    ⚛️ popover.tsx
+    ⚛️ progress.tsx
+    ⚛️ radio-group.tsx
+    ⚛️ resizable.tsx
+    ⚛️ scroll-area.tsx
+    ⚛️ select.tsx
+    ⚛️ separator.tsx
+    ⚛️ sheet.tsx
+    ⚛️ sidebar.tsx
+    ⚛️ skeleton.tsx
+    ⚛️ slider.tsx
+    ⚛️ sonner.tsx
+    ⚛️ switch.tsx
+    ⚛️ table.tsx
+    ⚛️ tabs.tsx
+    ⚛️ textarea.tsx
+    ⚛️ toast.tsx
+    ⚛️ toaster.tsx
+    ⚛️ toggle-group.tsx
+    ⚛️ toggle.tsx
+    ⚛️ tooltip.tsx
+    ⚛️ use-mobile.tsx
+    🔷 use-toast.ts
+  ⚛️ error-boundary.tsx
+  ⚛️ theme-provider.tsx
+📁 config/
+  📋 oauth-client.json
+📁 contexts/
+  ⚛️ auth-context.tsx
+  ⚛️ location-context.tsx
+📁 hooks/
+  🔷 use-live-data.ts
+  ⚛️ use-mobile.tsx
+  🔷 use-toast.ts
+📁 lib/
+  🔷 ai-insights-service.ts
+  🔷 api-services.ts
+  🔷 config.ts
+  🔷 error-handling.ts
+  🔷 firebase.ts
+  🔷 gemini-service.ts
+  🔷 google-maps-sdk.ts
+  🔷 google-services.ts
+  🔷 map-utils.ts
+  🔷 oauth-config.ts
+  🔷 report-storage.ts
+  🔷 utils.ts
+📁 styles/
+  🎨 globals.css
+📁 types/
+  🔷 auth.ts
+📋 .eslintrc.json
+📝 README.md
+📋 client_secret_14008380219-anv3mffil9pg5i7tiiu0iqsmnci1rsar.apps.googleusercontent.com.json
+📋 components.json
+🟨 extract-codebase.js
+🔷 next-env.d.ts
+🟨 next.config.mjs
+📋 package.json
+🟨 postcss.config.mjs
+🟨 prettier.config.js
+🔷 tailwind.config.ts
+📋 tsconfig.json
+📋 vercel.json
+```
+
+
+
+---
+
+# Code Files
+
+
+## File: next.config.mjs
+
+```mjs
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // Remove 'swcMinify' as it's enabled by default in Next.js 15
+  experimental: {
+    optimizeCss: true,
+    scrollRestoration: true,
+  },
+  images: {
+    domains: [
+      'maps.googleapis.com',
+      'firebasestorage.googleapis.com',
+      'lh3.googleusercontent.com', // For Google profile images
+    ],
+  },
+  // Enable PWA features if needed
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+        ],
+      },
+    ];
+  },
+};
+
+export default nextConfig;
+```
+
+## File: package.json
+
+```json
+{
+  "name": "xphorapulse",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev",
+    "lint": "next lint",
+    "start": "next start",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@emotion/is-prop-valid": "^1.2.1",
+    "@hookform/resolvers": "^3.9.1",
+    "@lottiefiles/dotlottie-react": "^0.8.0",
+    "@radix-ui/react-accordion": "1.2.2",
+    "@radix-ui/react-alert-dialog": "1.1.4",
+    "@radix-ui/react-aspect-ratio": "1.1.1",
+    "@radix-ui/react-avatar": "1.1.2",
+    "@radix-ui/react-checkbox": "1.1.3",
+    "@radix-ui/react-collapsible": "1.1.2",
+    "@radix-ui/react-context-menu": "2.2.4",
+    "@radix-ui/react-dialog": "1.1.4",
+    "@radix-ui/react-dropdown-menu": "2.1.4",
+    "@radix-ui/react-hover-card": "1.1.4",
+    "@radix-ui/react-label": "2.1.1",
+    "@radix-ui/react-menubar": "1.1.4",
+    "@radix-ui/react-navigation-menu": "1.2.3",
+    "@radix-ui/react-popover": "1.1.4",
+    "@radix-ui/react-progress": "1.1.1",
+    "@radix-ui/react-radio-group": "1.2.2",
+    "@radix-ui/react-scroll-area": "1.2.2",
+    "@radix-ui/react-select": "2.1.4",
+    "@radix-ui/react-separator": "1.1.1",
+    "@radix-ui/react-slider": "1.2.2",
+    "@radix-ui/react-slot": "1.1.1",
+    "@radix-ui/react-switch": "1.1.2",
+    "@radix-ui/react-tabs": "1.1.2",
+    "@radix-ui/react-toast": "1.2.4",
+    "@radix-ui/react-toggle": "1.1.1",
+    "@radix-ui/react-toggle-group": "1.1.1",
+    "@radix-ui/react-tooltip": "1.1.6",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cmdk": "1.0.4",
+    "date-fns": "4.1.0",
+    "embla-carousel-react": "8.5.1",
+    "firebase": "^10.14.0",
+    "framer-motion": "^11.11.17",
+    "geist": "^1.3.1",
+    "@googlemaps/js-api-loader": "^1.16.8",
+    "input-otp": "1.4.1",
+    "lucide-react": "^0.454.0",
+    "next": "15.2.4",
+    "next-themes": "^0.4.4",
+    "react": "^19",
+    "react-day-picker": "9.8.0",
+    "react-dom": "^19",
+    "react-hook-form": "^7.54.1",
+    "react-resizable-panels": "^2.1.7",
+    "recharts": "2.15.0",
+    "sonner": "^1.7.1",
+    "tailwind-merge": "^2.5.5",
+    "tailwindcss-animate": "^1.0.7",
+    "vaul": "^0.9.6",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/google.maps": "^3.58.0",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "15.2.4",
+    "postcss": "^8.5",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5",
+    "prettier": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.8"
+  }
+}
+```
+
+## File: postcss.config.mjs
+
+```mjs
+/** @type {import('postcss-load-config').Config} */
+const config = {
+  plugins: {
+    tailwindcss: {},
+  },
+};
+
+export default config;
+
+```
+
+## File: prettier.config.js
+
+```js
+module.exports = {
+  semi: false,
+  singleQuote: true,
+  tabWidth: 2,
+  trailingComma: "es5",
+  printWidth: 120,
+  bracketSpacing: true,
+  arrowParens: "avoid",
+  endOfLine: "lf",
+  plugins: ["prettier-plugin-tailwindcss"],
+}
+
+```
+
+## File: tsconfig.json
+
+```json
+{
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "target": "ES6",
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+
+```
+
+## File: tailwind.config.ts
+
+```ts
+import type { Config } from "tailwindcss"
+
+const config = {
+  darkMode: ["class"],
+  content: [
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+    "*.{js,ts,jsx,tsx,mdx}",
+  ],
+  prefix: "",
+  theme: {
+    container: {
+      center: true,
+      padding: "1rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
+    extend: {
+      colors: {
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+      },
+      spacing: {
+        "safe-top": "env(safe-area-inset-top)",
+        "safe-bottom": "env(safe-area-inset-bottom)",
+        "safe-left": "env(safe-area-inset-left)",
+        "safe-right": "env(safe-area-inset-right)",
+      },
+    },
+  },
+  plugins: [require("tailwindcss-animate")],
+} satisfies Config
+
+export default config
+
+```
+
+## File: next-env.d.ts
+
+```ts
+/// <reference types="next" />
+/// <reference types="next/image-types/global" />
+
+// NOTE: This file should not be edited
+// see https://nextjs.org/docs/app/api-reference/config/typescript for more information.
+
+```
+
+## File: client_secret_14008380219-anv3mffil9pg5i7tiiu0iqsmnci1rsar.apps.googleusercontent.com.json
+
+```json
+{"web":{"client_id":"14008380219-anv3mffil9pg5i7tiiu0iqsmnci1rsar.apps.googleusercontent.com","project_id":"studious-pulsar-467012-d7","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"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"}}
+```
+
+## File: config/oauth-client.json
+
+```json
+{"web":{"client_id":"14008380219-anv3mffil9pg5i7tiiu0iqsmnci1rsar.apps.googleusercontent.com","project_id":"studious-pulsar-467012-d7","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"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"}}
+```
+
+## File: components.json
+
+```json
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "default",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.ts",
+    "css": "app/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "iconLibrary": "lucide"
+}
+```
+
+## File: .eslintrc.json
+
+```json
+{
+  "extends": ["next/core-web-vitals", "@typescript-eslint/recommended", "prettier"],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/prefer-const": "error",
+    "prefer-const": "off",
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "react-hooks/exhaustive-deps": "warn"
+  },
+  "ignorePatterns": ["node_modules/", ".next/", "out/", "build/"]
+}
+
+```
+
+## File: vercel.json
+
+```json
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "regions": ["bom1"],
+  "functions": {
+    "app/**/*.tsx": {
+      "maxDuration": 10
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "origin-when-cross-origin"
+        }
+      ]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
+    }
+  ]
+}
+
+```
+
+## File: styles/globals.css
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+```
+
+## File: README.md
+
+```md
+# XphoraPulse Frontend
+
+Real-time city intelligence for Bengaluru citizens. A Progressive Web App (PWA) built with Next.js 15, TypeScript, and Tailwind CSS.
+
+## 🚀 Features
+
+- **Real-time Data**: Live weather, air quality, traffic, and city mood data powered by Google APIs
+- **Interactive Maps**: Google Maps integration with incident markers
+- **Location-aware**: Automatic location detection with manual override using Google Geocoding
+- **Incident Reporting**: AI-powered incident analysis and reporting with Gemini
+- **Authentication**: Firebase Google Auth integration
+- **PWA Support**: Installable app with offline capabilities
+- **Responsive Design**: Mobile-first design with desktop support
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 15 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Authentication**: Firebase Auth
+- **Maps & Location**: Google Maps API, Geocoding API, Places API, Directions API
+- **AI**: Google Gemini API
+- **Animations**: Framer Motion + Lottie
+- **State Management**: React Context + Hooks
+
+## 📋 Prerequisites
+
+- Node.js 18+ and npm 8+
+- Google Cloud Platform account with billing enabled
+- Firebase project (for authentication)
+- Google Maps API key with required APIs enabled
+
+## 🔧 Installation
+
+1. **Clone the repository**
+   \`\`\`bash
+   git clone <repository-url>
+   cd xphorapulse-frontend
+   \`\`\`
+
+2. **Install dependencies**
+   \`\`\`bash
+   npm install
+   \`\`\`
+
+3. **Set up Google Cloud APIs**
+   
+   Enable these APIs in Google Cloud Console:
+   - Maps JavaScript API
+   - Geocoding API
+   - Places API
+   - Directions API
+   - (Optional) Gemini API
+
+4. **Set up environment variables**
+   \`\`\`bash
+   cp .env.example .env.local
+   \`\`\`
+   
+   Fill in your API keys in `.env.local`:
+   \`\`\`env
+   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+   NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+   NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+   NEXT_PUBLIC_GEMINI_API_KEY=your_gemini_api_key
+   \`\`\`
+
+5. **Run the development server**
+   \`\`\`bash
+   npm run dev
+   \`\`\`
+
+6. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+## 🗺️ Google APIs Integration
+
+### Maps JavaScript API
+- Interactive city maps
+- Real-time incident markers
+- Location visualization
+
+### Geocoding API
+- Convert coordinates to addresses
+- Location name resolution
+- Reverse geocoding for user location
+
+### Places API
+- Nearby business information
+- City mood analysis based on ratings
+- Local establishment data
+
+### Directions API
+- Real-time traffic data
+- Route optimization
+- Travel time estimation
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+
+1. **Connect your repository to Vercel**
+2. **Set environment variables** in Vercel dashboard
+3. **Deploy** - Vercel will automatically build and deploy
+
+### Other Platforms
+
+1. **Build the application**
+   \`\`\`bash
+   npm run build
+   \`\`\`
+
+2. **Start the production server**
+   \`\`\`bash
+   npm start
+   \`\`\`
+
+## 🔑 API Keys Setup
+
+### Google Cloud Platform
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select existing
+3. Enable required APIs (Maps, Geocoding, Places, Directions)
+4. Create credentials (API Key)
+5. Restrict the key to your domain and required APIs
+
+### Firebase
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Create a new project
+3. Enable Authentication with Google provider
+4. Get your config from Project Settings
+
+### Gemini AI (Optional)
+1. Access Google AI Studio
+2. Get your Gemini API key
+3. Enable for multimodal analysis
+
+## 📱 PWA Features
+
+- **Installable**: Can be installed on mobile devices
+- **Offline Support**: Basic functionality works offline
+- **Push Notifications**: (Future feature)
+- **Background Sync**: (Future feature)
+
+## 🧪 Testing
+
+\`\`\`bash
+# Run linting
+npm run lint
+
+# Fix linting issues
+npm run lint:fix
+
+# Type checking
+npm run type-check
+
+# Run tests (when implemented)
+npm test
+\`\`\`
+
+## 📊 Performance
+
+- **Lighthouse Score**: 90+ on all metrics
+- **Core Web Vitals**: Optimized for LCP, FID, CLS
+- **Bundle Size**: Optimized with code splitting
+- **Caching**: Aggressive caching for static assets
+- **Google APIs**: Efficient API usage with caching
+
+## 🔒 Security
+
+- **CSP Headers**: Content Security Policy implemented
+- **HTTPS Only**: Secure connections enforced
+- **API Key Protection**: Client-side keys properly scoped
+- **Input Validation**: All user inputs validated
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests and linting
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🆘 Support
+
+For support, please open an issue in the repository or contact the development team.
+
+```
+
+## File: extract-codebase.js
+
+```js
+const fs = require('fs');
+const path = require('path');
+
+// Configuration
+const extensions = ['.tsx', '.ts', '.js', '.jsx', '.json', '.md', '.css', '.mjs'];
+const excludeDirs = ['node_modules', '.next', '.git', 'dist', 'build', '.vercel', 'public'];
+const maxFileSize = 600 * 1024; // 600KB per file (smaller for better AI processing)
+
+// Enhanced file categorization for 5-part split
+const fileCategories = {
+    config: {
+        name: 'Configuration & Setup',
+        patterns: ['package.json', 'next.config', 'tailwind.config', 'tsconfig', '.env', 'vercel.json', 'components.json', 'postcss.config', 'eslint'],
+        priority: 1,
+        description: 'Project configuration, dependencies, and build setup files'
+    },
+    core: {
+        name: 'Core App Structure',
+        patterns: ['app/layout.tsx', 'app/page.tsx', 'app/loading.tsx', 'app/globals.css', 'app/not-found'],
+        priority: 2,
+        description: 'Root app files, main layouts, and global application structure'
+    },
+    pages: {
+        name: 'Pages & Routes',
+        patterns: ['app/(main)/', 'app/setup/', '/page.tsx', '/layout.tsx', 'action.ts'],
+        priority: 3,
+        description: 'Application pages, routing, and page-specific components'
+    },
+    components: {
+        name: 'UI Components',
+        patterns: ['components/ui/', 'components/auth/', 'components/mobile/', 'components/maps/', 'components/onboarding/', 'components/core/'],
+        priority: 4,
+        description: 'Reusable UI components, authentication, and feature-specific components'
+    },
+    utils: {
+        name: 'Utilities & Services',
+        patterns: ['lib/', 'hooks/', 'contexts/', 'types/', 'utils/', 'services/', 'store/', 'providers/'],
+        priority: 5,
+        description: 'Utility functions, custom hooks, contexts, type definitions, and services'
+    }
+};
+
+function getAllFiles(dirPath, arrayOfFiles = []) {
+    try {
+        const files = fs.readdirSync(dirPath);
+        
+        files.forEach(file => {
+            const fullPath = path.join(dirPath, file);
+            
+            if (fs.statSync(fullPath).isDirectory()) {
+                if (!excludeDirs.includes(file) && !file.startsWith('.')) {
+                    arrayOfFiles = getAllFiles(fullPath, arrayOfFiles);
+                }
+            } else {
+                const ext = path.extname(file);
+                if (extensions.includes(ext)) {
+                    arrayOfFiles.push(fullPath);
+                }
+            }
+        });
+    } catch (error) {
+        console.log(`Error reading directory ${dirPath}:`, error.message);
+    }
+    
+    return arrayOfFiles;
+}
+
+function categorizeFile(filePath) {
+    const normalizedPath = filePath.replace(/\\/g, '/').toLowerCase();
+    const fileName = path.basename(filePath).toLowerCase();
+    
+    // Check each category's patterns
+    for (const [key, category] of Object.entries(fileCategories)) {
+        for (const pattern of category.patterns) {
+            if (normalizedPath.includes(pattern.toLowerCase())) {
+                return key;
+            }
+        }
+    }
+    
+    // Enhanced fallback logic
+    if (normalizedPath.includes('app/') && !normalizedPath.includes('app/(main)/')) {
+        return 'core';
+    }
+    if (normalizedPath.includes('app/(main)/') || normalizedPath.includes('/page.tsx')) {
+        return 'pages';
+    }
+    if (normalizedPath.includes('components/')) {
+        return 'components';
+    }
+    if (normalizedPath.includes('lib/') || normalizedPath.includes('hooks/') || 
+        normalizedPath.includes('contexts/') || normalizedPath.includes('types/')) {
+        return 'utils';
+    }
+    
+    // Default to config for unknown files
+    return 'config';
+}
+
+function formatFileContent(filePath, content) {
+    const relativePath = path.relative('.', filePath).replace(/\\/g, '/');
+    const ext = path.extname(filePath).slice(1);
+    
+    let output = `\n## File: ${relativePath}\n\n`;
+    output += `\`\`\`${ext}\n`;
+    output += content;
+    output += '\n```\n';
+    
+    return output;
+}
+
+function createProjectStructure(files) {
+    let structure = '## Project Structure:\n```\n';
+    
+    // Sort files for better readability
+    const sortedFiles = files
+        .map(f => path.relative('.', f).replace(/\\/g, '/'))
+        .sort();
+    
+    // Group by directory
+    const dirStructure = {};
+    sortedFiles.forEach(file => {
+        const parts = file.split('/');
+        let current = dirStructure;
+        
+        parts.forEach((part, index) => {
+            if (index === parts.length - 1) {
+                // It's a file
+                if (!current._files) current._files = [];
+                current._files.push(part);
+            } else {
+                // It's a directory
+                if (!current[part]) current[part] = {};
+                current = current[part];
+            }
+        });
+    });
+    
+    function printStructure(obj, indent = '') {
+        let result = '';
+        
+        // Print directories first
+        Object.keys(obj).filter(k => k !== '_files').sort().forEach(key => {
+            result += `${indent}📁 ${key}/\n`;
+            result += printStructure(obj[key], indent + '  ');
+        });
+        
+        // Print files
+        if (obj._files) {
+            obj._files.sort().forEach(file => {
+                const ext = path.extname(file);
+                const icon = getFileIcon(ext);
+                result += `${indent}${icon} ${file}\n`;
+            });
+        }
+        
+        return result;
+    }
+    
+    structure += printStructure(dirStructure);
+    structure += '```\n\n';
+    
+    return structure;
+}
+
+function getFileIcon(ext) {
+    const icons = {
+        '.tsx': '⚛️',
+        '.ts': '🔷',
+        '.js': '🟨',
+        '.jsx': '⚛️',
+        '.json': '📋',
+        '.md': '📝',
+        '.css': '🎨',
+        '.mjs': '🟨'
+    };
+    return icons[ext] || '📄';
+}
+
+function extractCodebase() {
+    console.log('🚀 Starting enhanced codebase extraction (5-part split)...\n');
+    
+    // Get all files
+    const allFiles = getAllFiles('.');
+    console.log(`📁 Found ${allFiles.length} files to process`);
+    
+    // Categorize files
+    const categorizedFiles = {
+        config: [],
+        core: [],
+        pages: [],
+        components: [],
+        utils: []
+    };
+    
+    allFiles.forEach(file => {
+        const category = categorizeFile(file);
+        categorizedFiles[category].push(file);
+    });
+    
+    // Print categorization summary
+    console.log('\n📊 File categorization:');
+    Object.entries(categorizedFiles).forEach(([category, files]) => {
+        console.log(`  ${fileCategories[category].name}: ${files.length} files`);
+    });
+    
+    // Create project structure (shared across all files)
+    const projectStructure = createProjectStructure(allFiles);
+    
+    // Create header template
+    const createHeader = (partNumber, category) => {
+        const categoryInfo = fileCategories[category];
+        return `# XphoraPulse Codebase - Part ${partNumber}: ${categoryInfo.name}
+
+This is part ${partNumber} of 5 of the XphoraPulse codebase.
+
+## About This Part
+${categoryInfo.description}
+
+${projectStructure}
+
+---
+
+# Code Files
+
+`;
+    };
+    
+    // Generate each part
+    Object.entries(categorizedFiles).forEach(([category, files], index) => {
+        const partNumber = index + 1;
+        const fileName = `codebase_part${partNumber}_${category}.txt`;
+        
+        let content = createHeader(partNumber, category);
+        let currentSize = Buffer.byteLength(content, 'utf8');
+        let includedFiles = 0;
+        let skippedFiles = [];
+        
+        console.log(`\n📝 Creating ${fileName}...`);
+        
+        // Sort files by importance (smaller/config files first)
+        const sortedFiles = files.sort((a, b) => {
+            const aSize = getFileSize(a);
+            const bSize = getFileSize(b);
+            const aPriority = getFilePriority(a);
+            const bPriority = getFilePriority(b);
+            
+            if (aPriority !== bPriority) return aPriority - bPriority;
+            return aSize - bSize;
+        });
+        
+        sortedFiles.forEach(file => {
+            try {
+                const fileContent = fs.readFileSync(file, 'utf8');
+                const formattedContent = formatFileContent(file, fileContent);
+                const contentSize = Buffer.byteLength(formattedContent, 'utf8');
+                
+                // Check if adding this file would exceed the limit
+                if (currentSize + contentSize > maxFileSize && includedFiles > 0) {
+                    skippedFiles.push({
+                        file: path.relative('.', file),
+                        size: Math.round(contentSize / 1024)
+                    });
+                    return;
+                }
+                
+                content += formattedContent;
+                currentSize += contentSize;
+                includedFiles++;
+                
+            } catch (error) {
+                console.log(`  ⚠️  Error reading ${file}: ${error.message}`);
+                skippedFiles.push({
+                    file: path.relative('.', file),
+                    error: error.message
+                });
+            }
+        });
+        
+        // Add summary at the end
+        if (skippedFiles.length > 0) {
+            content += `\n---\n\n## Skipped Files (size limit exceeded)\n\n`;
+            skippedFiles.forEach(item => {
+                if (item.error) {
+                    content += `- ❌ ${item.file} (Error: ${item.error})\n`;
+                } else {
+                    content += `- 📦 ${item.file} (${item.size}KB)\n`;
+                }
+            });
+        }
+        
+        content += `\n---\n\n**Part ${partNumber} Summary:**\n`;
+        content += `- Files included: ${includedFiles}\n`;
+        content += `- Files skipped: ${skippedFiles.length}\n`;
+        content += `- Total size: ${Math.round(currentSize / 1024)}KB\n`;
+        
+        // Write file
+        fs.writeFileSync(fileName, content, 'utf8');
+        
+        console.log(`  ✅ ${fileName} created`);
+        console.log(`     📊 ${includedFiles} files, ${Math.round(currentSize / 1024)}KB`);
+        if (skippedFiles.length > 0) {
+            console.log(`     ⚠️  ${skippedFiles.length} files skipped due to size limit`);
+        }
+    });
+    
+    // Create enhanced index file
+    createIndexFile();
+    
+    console.log('\n🎉 Enhanced extraction complete!');
+    console.log('\n📋 Generated files:');
+    console.log('  1. codebase_part1_config.txt - Configuration & setup files');
+    console.log('  2. codebase_part2_core.txt - Core app structure & layouts');
+    console.log('  3. codebase_part3_pages.txt - Application pages & routes');
+    console.log('  4. codebase_part4_components.txt - UI components & features');
+    console.log('  5. codebase_part5_utils.txt - Utilities, hooks & services');
+    console.log('  6. codebase_index.txt - Overview & usage guide');
+}
+
+function getFileSize(filePath) {
+    try {
+        return fs.statSync(filePath).size;
+    } catch {
+        return 0;
+    }
+}
+
+function getFilePriority(filePath) {
+    const fileName = path.basename(filePath).toLowerCase();
+    
+    // High priority files (include first)
+    if (['package.json', 'next.config.mjs', 'layout.tsx', 'page.tsx'].includes(fileName)) {
+        return 1;
+    }
+    
+    // Medium priority
+    if (fileName.includes('config') || fileName.includes('index')) {
+        return 2;
+    }
+    
+    // Low priority (large files, less critical)
+    return 3;
+}
+
+function createIndexFile() {
+    const indexContent = `# XphoraPulse Codebase - Complete Guide (5-Part Split)
+
+This codebase has been split into 5 focused parts for optimal AI processing and development workflow:
+
+## 📁 Part 1: Configuration & Setup (codebase_part1_config.txt)
+**Use this for:** Understanding project setup, dependencies, and build configuration
+- package.json - Dependencies and scripts
+- next.config.mjs - Next.js configuration  
+- tailwind.config.ts - Styling configuration
+- TypeScript, ESLint, and build configs
+- Environment variable templates
+
+## 🏗️ Part 2: Core App Structure (codebase_part2_core.txt)
+**Use this for:** Understanding main app architecture and root-level structure
+- Root layout.tsx and page.tsx
+- Global CSS and styling
+- App-level loading and error handling
+- Core application initialization
+
+## 📄 Part 3: Pages & Routes (codebase_part3_pages.txt)
+**Use this for:** Understanding application routing and page-level components
+- All application pages (dashboard, alerts, chat, etc.)
+- Route layouts and page structures
+- Server actions and page-specific logic
+- Navigation and routing patterns
+
+## 🧩 Part 4: UI Components (codebase_part4_components.txt)
+**Use this for:** Understanding UI components and feature implementations
+- Reusable UI components (buttons, forms, etc.)
+- Authentication components
+- Mobile-specific components
+- Maps and visualization components
+- Feature-specific component groups
+
+## ⚙️ Part 5: Utilities & Services (codebase_part5_utils.txt)
+**Use this for:** Understanding business logic, data handling, and utilities
+- Custom React hooks
+- Context providers and state management
+- Utility functions and helpers
+- Service layer implementations
+- Type definitions and interfaces
+
+## 💡 How to Use These Files
+
+### For AI Chat/Analysis:
+1. **Start with Part 1** for project setup and configuration questions
+2. **Use Part 2** for understanding the overall app architecture
+3. **Use Part 3** for questions about specific pages or routing
+4. **Use Part 4** for UI component development and styling
+5. **Use Part 5** for business logic, data flow, and utility functions
+
+### For Development Workflow:
+1. **Part 1** - Setting up the development environment
+2. **Part 2** - Modifying app-wide behavior and global styles
+3. **Part 3** - Adding new pages or modifying existing routes
+4. **Part 4** - Building new components or updating UI
+5. **Part 5** - Implementing business logic and data processing
+
+### For Code Review:
+Each part focuses on a specific aspect of the application, making it easier to:
+- Review configuration changes (Part 1)
+- Assess architectural decisions (Part 2)  
+- Evaluate page implementations (Part 3)
+- Check component design (Part 4)
+- Validate business logic (Part 5)
+
+## 🔍 Quick Reference
+
+**Total Files Processed:** ${getAllFiles('.').length}
+**Generated:** ${new Date().toLocaleString()}
+**Project:** XphoraPulse - Multi-Agent City Intelligence Platform
+**Split Strategy:** 5-part logical organization for optimal processing
+
+## 📝 File Size Optimization
+
+Each part is optimized to stay under 600KB for efficient AI processing while maintaining:
+- Complete file contents with syntax highlighting
+- Logical grouping of related functionality
+- Minimal overlap between parts
+- Maximum context preservation
+
+---
+
+*This enhanced 5-part split provides better separation of concerns and 
+more focused context for both AI analysis and human development.*
+`;
+
+    fs.writeFileSync('codebase_index.txt', indexContent, 'utf8');
+}
+
+// Run the extraction
+if (require.main === module) {
+    extractCodebase();
+}
+
+module.exports = { extractCodebase };
+```
+
+---
+
+**Part 1 Summary:**
+- Files included: 15
+- Files skipped: 0
+- Total size: 36KB

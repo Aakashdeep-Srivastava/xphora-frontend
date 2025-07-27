@@ -1,0 +1,85 @@
+# XphoraPulse Codebase - Complete Guide (5-Part Split)
+
+This codebase has been split into 5 focused parts for optimal AI processing and development workflow:
+
+## 📁 Part 1: Configuration & Setup (codebase_part1_config.txt)
+**Use this for:** Understanding project setup, dependencies, and build configuration
+- package.json - Dependencies and scripts
+- next.config.mjs - Next.js configuration  
+- tailwind.config.ts - Styling configuration
+- TypeScript, ESLint, and build configs
+- Environment variable templates
+
+## 🏗️ Part 2: Core App Structure (codebase_part2_core.txt)
+**Use this for:** Understanding main app architecture and root-level structure
+- Root layout.tsx and page.tsx
+- Global CSS and styling
+- App-level loading and error handling
+- Core application initialization
+
+## 📄 Part 3: Pages & Routes (codebase_part3_pages.txt)
+**Use this for:** Understanding application routing and page-level components
+- All application pages (dashboard, alerts, chat, etc.)
+- Route layouts and page structures
+- Server actions and page-specific logic
+- Navigation and routing patterns
+
+## 🧩 Part 4: UI Components (codebase_part4_components.txt)
+**Use this for:** Understanding UI components and feature implementations
+- Reusable UI components (buttons, forms, etc.)
+- Authentication components
+- Mobile-specific components
+- Maps and visualization components
+- Feature-specific component groups
+
+## ⚙️ Part 5: Utilities & Services (codebase_part5_utils.txt)
+**Use this for:** Understanding business logic, data handling, and utilities
+- Custom React hooks
+- Context providers and state management
+- Utility functions and helpers
+- Service layer implementations
+- Type definitions and interfaces
+
+## 💡 How to Use These Files
+
+### For AI Chat/Analysis:
+1. **Start with Part 1** for project setup and configuration questions
+2. **Use Part 2** for understanding the overall app architecture
+3. **Use Part 3** for questions about specific pages or routing
+4. **Use Part 4** for UI component development and styling
+5. **Use Part 5** for business logic, data flow, and utility functions
+
+### For Development Workflow:
+1. **Part 1** - Setting up the development environment
+2. **Part 2** - Modifying app-wide behavior and global styles
+3. **Part 3** - Adding new pages or modifying existing routes
+4. **Part 4** - Building new components or updating UI
+5. **Part 5** - Implementing business logic and data processing
+
+### For Code Review:
+Each part focuses on a specific aspect of the application, making it easier to:
+- Review configuration changes (Part 1)
+- Assess architectural decisions (Part 2)  
+- Evaluate page implementations (Part 3)
+- Check component design (Part 4)
+- Validate business logic (Part 5)
+
+## 🔍 Quick Reference
+
+**Total Files Processed:** 115
+**Generated:** 27/7/2025, 6:02:05 am
+**Project:** XphoraPulse - Multi-Agent City Intelligence Platform
+**Split Strategy:** 5-part logical organization for optimal processing
+
+## 📝 File Size Optimization
+
+Each part is optimized to stay under 600KB for efficient AI processing while maintaining:
+- Complete file contents with syntax highlighting
+- Logical grouping of related functionality
+- Minimal overlap between parts
+- Maximum context preservation
+
+---
+
+*This enhanced 5-part split provides better separation of concerns and 
+more focused context for both AI analysis and human development.*

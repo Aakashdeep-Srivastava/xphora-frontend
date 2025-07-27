@@ -1,0 +1,372 @@
+# XphoraPulse Codebase - Part 2: Core App Structure
+
+This is part 2 of 5 of the XphoraPulse codebase.
+
+## About This Part
+Root app files, main layouts, and global application structure
+
+## Project Structure:
+```
+📁 app/
+  📁 (main)/
+    📁 alerts/
+      ⚛️ page.tsx
+    📁 chat/
+      ⚛️ page.tsx
+    📁 dashboard/
+      ⚛️ page.tsx
+    📁 financial-pulse/
+      ⚛️ page.tsx
+    📁 insights/
+      ⚛️ page.tsx
+    📁 map/
+      ⚛️ page.tsx
+    📁 prediction/
+      ⚛️ page.tsx
+    📁 profile/
+      ⚛️ page.tsx
+    📁 report/
+      🔷 action.ts
+      ⚛️ page.tsx
+    ⚛️ layout.tsx
+  📁 setup/
+    ⚛️ page.tsx
+  🎨 globals.css
+  ⚛️ layout.tsx
+  ⚛️ loading.tsx
+  ⚛️ page.tsx
+📁 components/
+  📁 auth/
+    ⚛️ auth-prompt.tsx
+    ⚛️ auth-status-banner.tsx
+    ⚛️ firebase-setup-guide.tsx
+    ⚛️ oauth-debug.tsx
+  📁 core/
+    ⚛️ app-initializer.tsx
+    ⚛️ fi-money-logo.tsx
+    ⚛️ loading-animation.tsx
+  📁 maps/
+    ⚛️ city-map.tsx
+  📁 mobile/
+    ⚛️ app-sidebar.tsx
+    ⚛️ bottom-nav.tsx
+    ⚛️ location-edit-modal.tsx
+    ⚛️ mobile-header.tsx
+  📁 onboarding/
+    ⚛️ welcome-screen.tsx
+  📁 providers/
+    ⚛️ config-validator.tsx
+  📁 ui/
+    ⚛️ accordion.tsx
+    ⚛️ alert-dialog.tsx
+    ⚛️ alert.tsx
+    ⚛️ aspect-ratio.tsx
+    ⚛️ avatar.tsx
+    ⚛️ badge.tsx
+    ⚛️ breadcrumb.tsx
+    ⚛️ button.tsx
+    ⚛️ calendar.tsx
+    ⚛️ card.tsx
+    ⚛️ carousel.tsx
+    ⚛️ chart.tsx
+    ⚛️ checkbox.tsx
+    ⚛️ collapsible.tsx
+    ⚛️ command.tsx
+    ⚛️ context-menu.tsx
+    ⚛️ dialog.tsx
+    ⚛️ drawer.tsx
+    ⚛️ dropdown-menu.tsx
+    ⚛️ form.tsx
+    ⚛️ hover-card.tsx
+    ⚛️ input-otp.tsx
+    ⚛️ input.tsx
+    ⚛️ label.tsx
+    ⚛️ menubar.tsx
+    ⚛️ navigation-menu.tsx
+    ⚛️ pagination.tsx
+    ⚛️ popover.tsx
+    ⚛️ progress.tsx
+    ⚛️ radio-group.tsx
+    ⚛️ resizable.tsx
+    ⚛️ scroll-area.tsx
+    ⚛️ select.tsx
+    ⚛️ separator.tsx
+    ⚛️ sheet.tsx
+    ⚛️ sidebar.tsx
+    ⚛️ skeleton.tsx
+    ⚛️ slider.tsx
+    ⚛️ sonner.tsx
+    ⚛️ switch.tsx
+    ⚛️ table.tsx
+    ⚛️ tabs.tsx
+    ⚛️ textarea.tsx
+    ⚛️ toast.tsx
+    ⚛️ toaster.tsx
+    ⚛️ toggle-group.tsx
+    ⚛️ toggle.tsx
+    ⚛️ tooltip.tsx
+    ⚛️ use-mobile.tsx
+    🔷 use-toast.ts
+  ⚛️ error-boundary.tsx
+  ⚛️ theme-provider.tsx
+📁 config/
+  📋 oauth-client.json
+📁 contexts/
+  ⚛️ auth-context.tsx
+  ⚛️ location-context.tsx
+📁 hooks/
+  🔷 use-live-data.ts
+  ⚛️ use-mobile.tsx
+  🔷 use-toast.ts
+📁 lib/
+  🔷 ai-insights-service.ts
+  🔷 api-services.ts
+  🔷 config.ts
+  🔷 error-handling.ts
+  🔷 firebase.ts
+  🔷 gemini-service.ts
+  🔷 google-maps-sdk.ts
+  🔷 google-services.ts
+  🔷 map-utils.ts
+  🔷 oauth-config.ts
+  🔷 report-storage.ts
+  🔷 utils.ts
+📁 styles/
+  🎨 globals.css
+📁 types/
+  🔷 auth.ts
+📋 .eslintrc.json
+📝 README.md
+📋 client_secret_14008380219-anv3mffil9pg5i7tiiu0iqsmnci1rsar.apps.googleusercontent.com.json
+📋 components.json
+🟨 extract-codebase.js
+🔷 next-env.d.ts
+🟨 next.config.mjs
+📋 package.json
+🟨 postcss.config.mjs
+🟨 prettier.config.js
+🔷 tailwind.config.ts
+📋 tsconfig.json
+📋 vercel.json
+```
+
+
+
+---
+
+# Code Files
+
+
+## File: app/page.tsx
+
+```tsx
+import AppInitializer from "@/components/core/app-initializer"
+
+export default function HomePage() {
+  return <AppInitializer />
+}
+
+```
+
+## File: app/layout.tsx
+
+```tsx
+import type React from "react"
+import type { Metadata, Viewport } from "next"
+import { Inter } from "next/font/google"
+import "./globals.css"
+import { cn } from "@/lib/utils"
+import { AuthProvider } from "@/contexts/auth-context"
+import { Toaster } from "@/components/ui/toaster"
+import { LocationProvider } from "@/contexts/location-context"
+import { config, validateConfig } from "@/lib/config"
+import { ErrorBoundary } from "@/components/error-boundary"
+
+const inter = Inter({ subsets: ["latin"] })
+
+// Validate configuration on app start (server-side only)
+if (typeof window === "undefined") {
+  try {
+    validateConfig()
+  } catch (error) {
+    console.error("Configuration validation failed:", error)
+  }
+}
+
+export const metadata: Metadata = {
+  title: {
+    default: config.app.name,
+    template: `%s | ${config.app.name}`,
+  },
+  description: config.app.description,
+  keywords: ["city intelligence", "bengaluru", "real-time", "traffic", "weather", "incidents"],
+  authors: [{ name: "XphoraPulse Team" }],
+  creator: "XphoraPulse",
+  publisher: "XphoraPulse",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: config.app.name,
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: config.app.url,
+    title: config.app.name,
+    description: config.app.description,
+    siteName: config.app.name,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: config.app.name,
+    description: config.app.description,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+    generator: 'v0.dev'
+}
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#87ECE8" },
+    { media: "(prefers-color-scheme: dark)", color: "#87ECE8" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+}
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
+  return (
+    <html lang="en" className="dark">
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+      </head>
+      <body className={cn("bg-background font-sans antialiased", inter.className)}>
+        <ErrorBoundary>
+          <LocationProvider>
+            <AuthProvider>
+              {children}
+              <Toaster />
+            </AuthProvider>
+          </LocationProvider>
+        </ErrorBoundary>
+      </body>
+    </html>
+  )
+}
+
+```
+
+## File: app/loading.tsx
+
+```tsx
+import { Loader2 } from "lucide-react"
+
+export default function Loading() {
+  return (
+    <div className="flex h-dvh w-full items-center justify-center bg-background">
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    </div>
+  )
+}
+
+```
+
+## File: app/globals.css
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 220 20% 98%;
+    --foreground: 220 10% 15%;
+    --card: 220 20% 100%;
+    --card-foreground: 220 10% 15%;
+    --popover: 220 20% 100%;
+    --popover-foreground: 220 10% 15%;
+    --primary: 178 73% 73%;
+    --primary-foreground: 220 10% 15%;
+    --secondary: 170 40% 96%;
+    --secondary-foreground: 170 30% 25%;
+    --muted: 220 15% 94%;
+    --muted-foreground: 220 10% 45%;
+    --accent: 178 70% 97%;
+    --accent-foreground: 178 30% 20%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 15% 90%;
+    --input: 220 15% 90%;
+    --ring: 178 73% 73%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 220 15% 12%;
+    --foreground: 220 15% 95%;
+    --card: 220 15% 18%;
+    --card-foreground: 220 15% 95%;
+    --popover: 220 15% 18%;
+    --popover-foreground: 220 15% 95%;
+    --primary: 178 73% 73%;
+    --primary-foreground: 220 10% 15%;
+    --secondary: 220 15% 25%;
+    --secondary-foreground: 220 15% 95%;
+    --muted: 220 15% 25%;
+    --muted-foreground: 220 15% 65%;
+    --accent: 178 30% 20%;
+    --accent-foreground: 178 73% 85%;
+    --destructive: 0 62.8% 50.6%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 15% 25%;
+    --input: 220 15% 25%;
+    --ring: 178 73% 73%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+```
+
+---
+
+**Part 2 Summary:**
+- Files included: 4
+- Files skipped: 0
+- Total size: 8KB

@@ -1,0 +1,4312 @@
+# XphoraPulse Codebase - Part 5: Utilities & Services
+
+This is part 5 of 5 of the XphoraPulse codebase.
+
+## About This Part
+Utility functions, custom hooks, contexts, type definitions, and services
+
+## Project Structure:
+```
+📁 app/
+  📁 (main)/
+    📁 alerts/
+      ⚛️ page.tsx
+    📁 chat/
+      ⚛️ page.tsx
+    📁 dashboard/
+      ⚛️ page.tsx
+    📁 financial-pulse/
+      ⚛️ page.tsx
+    📁 insights/
+      ⚛️ page.tsx
+    📁 map/
+      ⚛️ page.tsx
+    📁 prediction/
+      ⚛️ page.tsx
+    📁 profile/
+      ⚛️ page.tsx
+    📁 report/
+      🔷 action.ts
+      ⚛️ page.tsx
+    ⚛️ layout.tsx
+  📁 setup/
+    ⚛️ page.tsx
+  🎨 globals.css
+  ⚛️ layout.tsx
+  ⚛️ loading.tsx
+  ⚛️ page.tsx
+📁 components/
+  📁 auth/
+    ⚛️ auth-prompt.tsx
+    ⚛️ auth-status-banner.tsx
+    ⚛️ firebase-setup-guide.tsx
+    ⚛️ oauth-debug.tsx
+  📁 core/
+    ⚛️ app-initializer.tsx
+    ⚛️ fi-money-logo.tsx
+    ⚛️ loading-animation.tsx
+  📁 maps/
+    ⚛️ city-map.tsx
+  📁 mobile/
+    ⚛️ app-sidebar.tsx
+    ⚛️ bottom-nav.tsx
+    ⚛️ location-edit-modal.tsx
+    ⚛️ mobile-header.tsx
+  📁 onboarding/
+    ⚛️ welcome-screen.tsx
+  📁 providers/
+    ⚛️ config-validator.tsx
+  📁 ui/
+    ⚛️ accordion.tsx
+    ⚛️ alert-dialog.tsx
+    ⚛️ alert.tsx
+    ⚛️ aspect-ratio.tsx
+    ⚛️ avatar.tsx
+    ⚛️ badge.tsx
+    ⚛️ breadcrumb.tsx
+    ⚛️ button.tsx
+    ⚛️ calendar.tsx
+    ⚛️ card.tsx
+    ⚛️ carousel.tsx
+    ⚛️ chart.tsx
+    ⚛️ checkbox.tsx
+    ⚛️ collapsible.tsx
+    ⚛️ command.tsx
+    ⚛️ context-menu.tsx
+    ⚛️ dialog.tsx
+    ⚛️ drawer.tsx
+    ⚛️ dropdown-menu.tsx
+    ⚛️ form.tsx
+    ⚛️ hover-card.tsx
+    ⚛️ input-otp.tsx
+    ⚛️ input.tsx
+    ⚛️ label.tsx
+    ⚛️ menubar.tsx
+    ⚛️ navigation-menu.tsx
+    ⚛️ pagination.tsx
+    ⚛️ popover.tsx
+    ⚛️ progress.tsx
+    ⚛️ radio-group.tsx
+    ⚛️ resizable.tsx
+    ⚛️ scroll-area.tsx
+    ⚛️ select.tsx
+    ⚛️ separator.tsx
+    ⚛️ sheet.tsx
+    ⚛️ sidebar.tsx
+    ⚛️ skeleton.tsx
+    ⚛️ slider.tsx
+    ⚛️ sonner.tsx
+    ⚛️ switch.tsx
+    ⚛️ table.tsx
+    ⚛️ tabs.tsx
+    ⚛️ textarea.tsx
+    ⚛️ toast.tsx
+    ⚛️ toaster.tsx
+    ⚛️ toggle-group.tsx
+    ⚛️ toggle.tsx
+    ⚛️ tooltip.tsx
+    ⚛️ use-mobile.tsx
+    🔷 use-toast.ts
+  ⚛️ error-boundary.tsx
+  ⚛️ theme-provider.tsx
+📁 config/
+  📋 oauth-client.json
+📁 contexts/
+  ⚛️ auth-context.tsx
+  ⚛️ location-context.tsx
+📁 hooks/
+  🔷 use-live-data.ts
+  ⚛️ use-mobile.tsx
+  🔷 use-toast.ts
+📁 lib/
+  🔷 ai-insights-service.ts
+  🔷 api-services.ts
+  🔷 config.ts
+  🔷 error-handling.ts
+  🔷 firebase.ts
+  🔷 gemini-service.ts
+  🔷 google-maps-sdk.ts
+  🔷 google-services.ts
+  🔷 map-utils.ts
+  🔷 oauth-config.ts
+  🔷 report-storage.ts
+  🔷 utils.ts
+📁 styles/
+  🎨 globals.css
+📁 types/
+  🔷 auth.ts
+📋 .eslintrc.json
+📝 README.md
+📋 client_secret_14008380219-anv3mffil9pg5i7tiiu0iqsmnci1rsar.apps.googleusercontent.com.json
+📋 components.json
+🟨 extract-codebase.js
+🔷 next-env.d.ts
+🟨 next.config.mjs
+📋 package.json
+🟨 postcss.config.mjs
+🟨 prettier.config.js
+🔷 tailwind.config.ts
+📋 tsconfig.json
+📋 vercel.json
+```
+
+
+
+---
+
+# Code Files
+
+
+## File: components/providers/config-validator.tsx
+
+```tsx
+// components/providers/config-validator.tsx
+"use client"
+
+import { useEffect, useState } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { validateConfig } from '@/lib/config';
+
+export function ConfigValidator({ children }: { children: React.ReactNode }) {
+  const [configError, setConfigError] = useState<string | null>(null);
+  const [isValidating, setIsValidating] = useState(true);
+
+  useEffect(() => {
+    try {
+      validateConfig();
+      setConfigError(null);
+    } catch (error: any) {
+      setConfigError(error.message);
+    } finally {
+      setIsValidating(false);
+    }
+  }, []);
+
+  if (isValidating) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p>Validating configuration...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (configError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="max-w-md w-full">
+          <Alert className="border-red-200 bg-red-50">
+            <AlertDescription className="text-red-800">
+              <strong>Configuration Error:</strong>
+              <br />
+              {configError}
+              <br />
+              <br />
+              Please check your environment variables in <code>.env.local</code>
+              <br />
+              <br />
+              Missing variables should be added to your <code>.env.local</code> file:
+              <br />
+              <code className="text-xs bg-gray-100 p-2 block mt-2 rounded">
+                NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_key_here<br />
+                NEXT_PUBLIC_FIREBASE_API_KEY=your_key_here<br />
+                NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_domain_here<br />
+                NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+              </code>
+            </AlertDescription>
+          </Alert>
+          <Button 
+            className="w-full mt-4" 
+            onClick={() => window.location.reload()}
+          >
+            Retry After Configuration
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
+```
+
+## File: lib/oauth-config.ts
+
+```ts
+// OAuth configuration from your Google Cloud client
+let oauthClientConfig: any = null
+
+// Safely load OAuth configuration
+try {
+  oauthClientConfig = {
+    web: {
+      client_id: "14008380219-anv3mffil9pg5i7tiiu0iqsmnci1rsar.apps.googleusercontent.com",
+      project_id: "studious-pulsar-467012-d7",
+      auth_uri: "https://accounts.google.com/o/oauth2/auth",
+      token_uri: "https://oauth2.googleapis.com/token",
+      auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+      client_secret: "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",
+    },
+  }
+} catch (error) {
+  console.error("Failed to load OAuth configuration:", error)
+  oauthClientConfig = { web: {} }
+}
+
+// Extract OAuth configuration
+const oauthConfig = oauthClientConfig?.web || {}
+
+export const OAUTH_CONFIG = {
+  clientId: oauthConfig.client_id || "",
+  projectId: oauthConfig.project_id || "",
+  authUri: oauthConfig.auth_uri || "https://accounts.google.com/o/oauth2/auth",
+  tokenUri: oauthConfig.token_uri || "https://oauth2.googleapis.com/token",
+  authProviderCertUrl: oauthConfig.auth_provider_x509_cert_url || "",
+  scopes: ["openid", "email", "profile"],
+  redirectUri: typeof window !== "undefined" ? window.location.origin : "",
+  responseType: "code",
+  accessType: "online",
+  prompt: "select_account",
+}
+
+// Validate OAuth configuration
+export function validateOAuthConfig() {
+  const errors: string[] = []
+
+  if (!OAUTH_CONFIG.clientId) {
+    errors.push("OAuth Client ID is required")
+  }
+
+  if (!OAUTH_CONFIG.projectId) {
+    errors.push("OAuth Project ID is required")
+  }
+
+  if (!OAUTH_CONFIG.clientId.includes("googleusercontent.com")) {
+    errors.push("Invalid Google OAuth Client ID format")
+  }
+
+  if (errors.length > 0) {
+    console.error("OAuth Configuration errors:", errors)
+    return false
+  }
+
+  return true
+}
+
+// Helper to get OAuth URL (for debugging)
+export function getOAuthDebugInfo() {
+  return {
+    clientId: OAUTH_CONFIG.clientId,
+    projectId: OAUTH_CONFIG.projectId,
+    redirectUri: OAUTH_CONFIG.redirectUri,
+    scopes: OAUTH_CONFIG.scopes.join(" "),
+    authUri: OAUTH_CONFIG.authUri,
+    tokenUri: OAUTH_CONFIG.tokenUri,
+    isValid: validateOAuthConfig(),
+  }
+}
+
+// Get client secret (for server-side use only)
+export function getClientSecret() {
+  // In production, this should come from environment variables
+  // Never expose client secret in frontend code
+  return process.env.GOOGLE_OAUTH_CLIENT_SECRET || oauthConfig.client_secret
+}
+
+// Generate OAuth URL for manual testing
+export function generateOAuthUrl(state?: string) {
+  const params = new URLSearchParams({
+    client_id: OAUTH_CONFIG.clientId,
+    redirect_uri: OAUTH_CONFIG.redirectUri,
+    response_type: OAUTH_CONFIG.responseType,
+    scope: OAUTH_CONFIG.scopes.join(" "),
+    access_type: OAUTH_CONFIG.accessType,
+    prompt: OAUTH_CONFIG.prompt,
+    ...(state && { state }),
+  })
+
+  return `${OAUTH_CONFIG.authUri}?${params.toString()}`
+}
+
+```
+
+## File: lib/config.ts
+
+```ts
+// Application configuration with environment variable validation
+
+// OAuth configuration embedded directly
+const oauthClientConfig = {
+  web: {
+    client_id: "14008380219-anv3mffil9pg5i7tiiu0iqsmnci1rsar.apps.googleusercontent.com",
+    project_id: "studious-pulsar-467012-d7",
+    client_secret: "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",
+  },
+}
+
+export const config = {
+  app: {
+    name: process.env.NEXT_PUBLIC_APP_NAME || "XphoraPulse",
+    version: process.env.NEXT_PUBLIC_APP_VERSION || "1.0.0",
+    url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+    description: "Real-time city intelligence for Bengaluru citizens",
+  },
+
+  apis: {
+    googleMaps: {
+      key: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+      required: true,
+    },
+    gemini: {
+      key: process.env.NEXT_PUBLIC_GEMINI_API_KEY,
+      required: false, // Optional - falls back to mock analysis
+    },
+  },
+
+  oauth: {
+    clientId: oauthClientConfig.web.client_id,
+    projectId: oauthClientConfig.web.project_id,
+    clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET || oauthClientConfig.web.client_secret,
+  },
+
+  firebase: {
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "",
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "",
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "",
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "",
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "",
+  },
+
+  features: {
+    analytics: process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === "true",
+    pwa: process.env.NEXT_PUBLIC_ENABLE_PWA !== "false",
+    offlineMode: process.env.NEXT_PUBLIC_ENABLE_OFFLINE_MODE !== "false",
+  },
+
+  analytics: {
+    gaId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
+  },
+
+  // Default locations
+  defaultLocation: {
+    lat: 12.9716,
+    lng: 77.5946,
+    city: "Bengaluru",
+    district: "Bengaluru Urban",
+    country: "India",
+  },
+
+  // API endpoints - now using Google APIs
+  endpoints: {
+    geocoding: "https://maps.googleapis.com/maps/api/geocode/json",
+    places: "https://maps.googleapis.com/maps/api/place/nearbysearch/json",
+    directions: "https://maps.googleapis.com/maps/api/directions/json",
+  },
+
+  // Cache settings
+  cache: {
+    locationTTL: 10 * 60 * 1000, // 10 minutes
+    weatherTTL: 15 * 60 * 1000, // 15 minutes
+    trafficTTL: 5 * 60 * 1000, // 5 minutes
+  },
+}
+
+// Validation function for required environment variables
+export function validateConfig() {
+  const errors: string[] = []
+  const warnings: string[] = []
+
+  // Check required API keys
+  if (config.apis.googleMaps.required && !config.apis.googleMaps.key) {
+    errors.push("NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is required")
+  }
+
+  // Check OAuth configuration
+  if (!config.oauth.clientId) {
+    errors.push("OAuth Client ID is missing from configuration")
+  }
+
+  if (!config.oauth.projectId) {
+    errors.push("OAuth Project ID is missing from configuration")
+  }
+
+  // Check Firebase config (optional but recommended)
+  const firebaseKeys = Object.entries(config.firebase)
+  const missingFirebaseKeys = firebaseKeys.filter(([_, value]) => !value).map(([key]) => key)
+
+  if (missingFirebaseKeys.length > 0) {
+    warnings.push("Firebase configuration incomplete. Authentication features will be disabled.")
+    console.warn("Missing Firebase keys:", missingFirebaseKeys)
+  }
+
+  if (warnings.length > 0) {
+    console.warn("Configuration warnings:", warnings)
+  }
+
+  if (errors.length > 0) {
+    throw new Error(`Configuration errors:\n${errors.join("\n")}`)
+  }
+
+  return true
+}
+
+// Environment detection
+export const isDevelopment = process.env.NODE_ENV === "development"
+export const isProduction = process.env.NODE_ENV === "production"
+export const isTest = process.env.NODE_ENV === "test"
+
+```
+
+## File: lib/utils.ts
+
+```ts
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+
+```
+
+## File: types/auth.ts
+
+```ts
+export interface AuthState {
+  mode: "anonymous" | "authenticated"
+  user?: {
+    uid: string
+    email?: string
+    displayName?: string
+    photoURL?: string
+  }
+  permissions: string[]
+}
+
+export interface AuthPromptConfig {
+  title: string
+  message: string
+  benefits: string[]
+  action: string
+}
+
+```
+
+## File: hooks/use-mobile.tsx
+
+```tsx
+import * as React from "react"
+
+const MOBILE_BREAKPOINT = 768
+
+export function useIsMobile() {
+  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
+
+  React.useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
+    const onChange = () => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    }
+    mql.addEventListener("change", onChange)
+    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    return () => mql.removeEventListener("change", onChange)
+  }, [])
+
+  return !!isMobile
+}
+
+```
+
+## File: lib/map-utils.ts
+
+```ts
+import type * as google from "google.maps"
+
+const BENGALURU_CENTER = {
+  lat: 12.9716,
+  lng: 77.5946,
+}
+
+export const mapOptions: google.maps.MapOptions = {
+  center: BENGALURU_CENTER,
+  zoom: 12,
+  mapTypeId: "roadmap",
+  zoomControl: true,
+  mapTypeControl: false,
+  scaleControl: false,
+  streetViewControl: false,
+  rotateControl: false,
+  fullscreenControl: false,
+  styles: [
+    {
+      featureType: "poi",
+      elementType: "labels",
+      stylers: [{ visibility: "off" }],
+    },
+    {
+      featureType: "transit",
+      elementType: "labels.icon",
+      stylers: [{ visibility: "off" }],
+    },
+  ],
+}
+
+export const mobileMapOptions: google.maps.MapOptions = {
+  ...mapOptions,
+  gestureHandling: "greedy",
+  zoomControl: false,
+  disableDefaultUI: true,
+}
+
+```
+
+## File: lib/error-handling.ts
+
+```ts
+// Global error handling utilities
+export class AppError extends Error {
+  constructor(
+    message: string,
+    public code: string,
+    public statusCode = 500,
+    public isOperational = true,
+  ) {
+    super(message)
+    this.name = "AppError"
+    Error.captureStackTrace(this, this.constructor)
+  }
+}
+
+export class ValidationError extends AppError {
+  constructor(message: string, field?: string) {
+    super(message, "VALIDATION_ERROR", 400)
+    this.name = "ValidationError"
+  }
+}
+
+export class APIError extends AppError {
+  constructor(message: string, service: string, statusCode = 500) {
+    super(message, `API_ERROR_${service.toUpperCase()}`, statusCode)
+    this.name = "APIError"
+  }
+}
+
+// Error reporting utility
+export function reportError(error: Error, context?: Record<string, any>) {
+  console.error("Application Error:", {
+    name: error.name,
+    message: error.message,
+    stack: error.stack,
+    context,
+    timestamp: new Date().toISOString(),
+  })
+
+  // In production, you might want to send this to an error tracking service
+  // like Sentry, LogRocket, or Bugsnag
+  if (process.env.NODE_ENV === "production") {
+    // Example: Sentry.captureException(error, { extra: context })
+  }
+}
+
+// Global error boundary handler
+export function handleGlobalError(error: Error, errorInfo?: any) {
+  reportError(error, errorInfo)
+
+  // You might want to show a user-friendly error message
+  // or redirect to an error page
+}
+
+```
+
+## File: hooks/use-live-data.ts
+
+```ts
+"use client"
+
+import { useState, useEffect, useCallback } from "react"
+import { useLocation } from "@/contexts/location-context"
+import {
+  fetchWeatherData,
+  fetchAirQualityData,
+  fetchTrafficData,
+  fetchCityMoodData,
+  type WeatherData,
+  type AirQualityData,
+  type TrafficData,
+  type CityMoodData,
+} from "@/lib/google-services"
+
+export interface LiveData {
+  weather: WeatherData | null
+  airQuality: AirQualityData | null
+  traffic: TrafficData | null
+  cityMood: CityMoodData | null
+  isLoading: boolean
+  lastUpdated: Date | null
+}
+
+export function useLiveData() {
+  const { coords, district, city } = useLocation()
+  const [data, setData] = useState<LiveData>({
+    weather: null,
+    airQuality: null,
+    traffic: null,
+    cityMood: null,
+    isLoading: true,
+    lastUpdated: null,
+  })
+
+  const fetchAllData = useCallback(async () => {
+    if (!coords) return
+
+    setData((prev) => ({ ...prev, isLoading: true }))
+
+    try {
+      // Fetch all data using Google services
+      const [weather, airQuality, traffic, cityMood] = await Promise.all([
+        fetchWeatherData(coords.lat, coords.lng),
+        fetchAirQualityData(coords.lat, coords.lng),
+        fetchTrafficData(coords.lat, coords.lng),
+        fetchCityMoodData(district, city, coords),
+      ])
+
+      setData({
+        weather,
+        airQuality,
+        traffic,
+        cityMood,
+        isLoading: false,
+        lastUpdated: new Date(),
+      })
+    } catch (error) {
+      console.error("Failed to fetch live data:", error)
+      setData((prev) => ({ ...prev, isLoading: false }))
+    }
+  }, [coords, district, city])
+
+  // Listen for location changes
+  useEffect(() => {
+    const handleLocationChange = () => {
+      console.log("Location changed, refreshing data...")
+      fetchAllData()
+    }
+
+    window.addEventListener("locationChanged", handleLocationChange)
+    return () => window.removeEventListener("locationChanged", handleLocationChange)
+  }, [fetchAllData])
+
+  // Initial data fetch and periodic refresh
+  useEffect(() => {
+    fetchAllData()
+
+    // Refresh data every 2 minutes (more frequent since we're using Google APIs)
+    const interval = setInterval(fetchAllData, 120000)
+    return () => clearInterval(interval)
+  }, [fetchAllData])
+
+  return { ...data, refresh: fetchAllData }
+}
+
+```
+
+## File: hooks/use-toast.ts
+
+```ts
+"use client"
+
+// Inspired by react-hot-toast library
+import * as React from "react"
+
+import type {
+  ToastActionElement,
+  ToastProps,
+} from "@/components/ui/toast"
+
+const TOAST_LIMIT = 1
+const TOAST_REMOVE_DELAY = 1000000
+
+type ToasterToast = ToastProps & {
+  id: string
+  title?: React.ReactNode
+  description?: React.ReactNode
+  action?: ToastActionElement
+}
+
+const actionTypes = {
+  ADD_TOAST: "ADD_TOAST",
+  UPDATE_TOAST: "UPDATE_TOAST",
+  DISMISS_TOAST: "DISMISS_TOAST",
+  REMOVE_TOAST: "REMOVE_TOAST",
+} as const
+
+let count = 0
+
+function genId() {
+  count = (count + 1) % Number.MAX_SAFE_INTEGER
+  return count.toString()
+}
+
+type ActionType = typeof actionTypes
+
+type Action =
+  | {
+      type: ActionType["ADD_TOAST"]
+      toast: ToasterToast
+    }
+  | {
+      type: ActionType["UPDATE_TOAST"]
+      toast: Partial<ToasterToast>
+    }
+  | {
+      type: ActionType["DISMISS_TOAST"]
+      toastId?: ToasterToast["id"]
+    }
+  | {
+      type: ActionType["REMOVE_TOAST"]
+      toastId?: ToasterToast["id"]
+    }
+
+interface State {
+  toasts: ToasterToast[]
+}
+
+const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
+
+const addToRemoveQueue = (toastId: string) => {
+  if (toastTimeouts.has(toastId)) {
+    return
+  }
+
+  const timeout = setTimeout(() => {
+    toastTimeouts.delete(toastId)
+    dispatch({
+      type: "REMOVE_TOAST",
+      toastId: toastId,
+    })
+  }, TOAST_REMOVE_DELAY)
+
+  toastTimeouts.set(toastId, timeout)
+}
+
+export const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case "ADD_TOAST":
+      return {
+        ...state,
+        toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT),
+      }
+
+    case "UPDATE_TOAST":
+      return {
+        ...state,
+        toasts: state.toasts.map((t) =>
+          t.id === action.toast.id ? { ...t, ...action.toast } : t
+        ),
+      }
+
+    case "DISMISS_TOAST": {
+      const { toastId } = action
+
+      // ! Side effects ! - This could be extracted into a dismissToast() action,
+      // but I'll keep it here for simplicity
+      if (toastId) {
+        addToRemoveQueue(toastId)
+      } else {
+        state.toasts.forEach((toast) => {
+          addToRemoveQueue(toast.id)
+        })
+      }
+
+      return {
+        ...state,
+        toasts: state.toasts.map((t) =>
+          t.id === toastId || toastId === undefined
+            ? {
+                ...t,
+                open: false,
+              }
+            : t
+        ),
+      }
+    }
+    case "REMOVE_TOAST":
+      if (action.toastId === undefined) {
+        return {
+          ...state,
+          toasts: [],
+        }
+      }
+      return {
+        ...state,
+        toasts: state.toasts.filter((t) => t.id !== action.toastId),
+      }
+  }
+}
+
+const listeners: Array<(state: State) => void> = []
+
+let memoryState: State = { toasts: [] }
+
+function dispatch(action: Action) {
+  memoryState = reducer(memoryState, action)
+  listeners.forEach((listener) => {
+    listener(memoryState)
+  })
+}
+
+type Toast = Omit<ToasterToast, "id">
+
+function toast({ ...props }: Toast) {
+  const id = genId()
+
+  const update = (props: ToasterToast) =>
+    dispatch({
+      type: "UPDATE_TOAST",
+      toast: { ...props, id },
+    })
+  const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
+
+  dispatch({
+    type: "ADD_TOAST",
+    toast: {
+      ...props,
+      id,
+      open: true,
+      onOpenChange: (open) => {
+        if (!open) dismiss()
+      },
+    },
+  })
+
+  return {
+    id: id,
+    dismiss,
+    update,
+  }
+}
+
+function useToast() {
+  const [state, setState] = React.useState<State>(memoryState)
+
+  React.useEffect(() => {
+    listeners.push(setState)
+    return () => {
+      const index = listeners.indexOf(setState)
+      if (index > -1) {
+        listeners.splice(index, 1)
+      }
+    }
+  }, [state])
+
+  return {
+    ...state,
+    toast,
+    dismiss: (toastId?: string) => dispatch({ type: "DISMISS_TOAST", toastId }),
+  }
+}
+
+export { useToast, toast }
+
+```
+
+## File: contexts/location-context.tsx
+
+```tsx
+"use client"
+
+import { createContext, useContext, useState, type ReactNode, useCallback, useEffect } from "react"
+import { useToast } from "@/components/ui/use-toast"
+import { fetchLocationDetails } from "@/lib/google-services"
+
+interface LocationState {
+  district: string | null
+  city: string | null
+  country: string | null
+  coords: { lat: number; lng: number } | null
+  error: string | null
+  isLoading: boolean
+  requestLocation: () => void
+  setManualLocation: (details: {
+    lat: number
+    lng: number
+    district: string
+    city: string
+    country: string
+  }) => void
+  refreshLocationData: () => void
+}
+
+const LocationContext = createContext<LocationState | undefined>(undefined)
+
+export function LocationProvider({ children }: { children: ReactNode }) {
+  const [district, setDistrict] = useState<string | null>(null)
+  const [city, setCity] = useState<string | null>(null)
+  const [country, setCountry] = useState<string | null>(null)
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const { toast } = useToast()
+
+  const fetchCityName = useCallback(
+    async (lat: number, lng: number) => {
+      setIsLoading(true)
+      try {
+        const data = await fetchLocationDetails(lat, lng)
+
+        if (data && data.results && data.results.length > 0) {
+          const result = data.results[0]
+          const addressComponents = result.address_components
+
+          let newDistrict = "Current Location"
+          let newCity = "Unknown City"
+          let newCountry = "Unknown Country"
+
+          // Parse address components
+          for (const component of addressComponents) {
+            const types = component.types
+
+            if (types.includes("sublocality_level_1") || types.includes("neighborhood")) {
+              newDistrict = component.long_name
+            } else if (types.includes("locality")) {
+              newCity = component.long_name
+            } else if (types.includes("administrative_area_level_2") && newCity === "Unknown City") {
+              newCity = component.long_name
+            } else if (types.includes("country")) {
+              newCountry = component.long_name
+            }
+          }
+
+          setDistrict(newDistrict)
+          setCity(newCity)
+          setCountry(newCountry)
+          setCoords({ lat, lng })
+          setError(null)
+
+          // Trigger a custom event to notify other components about location change
+          window.dispatchEvent(
+            new CustomEvent("locationChanged", {
+              detail: { lat, lng, district: newDistrict, city: newCity, country: newCountry },
+            }),
+          )
+
+          toast({
+            title: "Location Updated",
+            description: `Now showing data for ${newDistrict}, ${newCity}`,
+          })
+        } else {
+          throw new Error("No location data found")
+        }
+      } catch (e) {
+        console.error("Google Geocoding failed", e)
+        setError("Could not determine city name.")
+        toast({
+          title: "Location Error",
+          description: "Could not determine location details.",
+          variant: "destructive",
+        })
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [toast],
+  )
+
+  const requestLocation = useCallback(() => {
+    setIsLoading(true)
+    if (!navigator.geolocation) {
+      setError("Geolocation is not supported by your browser.")
+      setIsLoading(false)
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords
+        fetchCityName(latitude, longitude)
+      },
+      () => {
+        setError("Unable to retrieve your location.")
+        setIsLoading(false)
+        toast({
+          title: "Location Access Denied",
+          description: "Please enable location services to get city-specific data.",
+          variant: "destructive",
+        })
+      },
+    )
+  }, [fetchCityName, toast])
+
+  const setManualLocation = useCallback(
+    (details: {
+      lat: number
+      lng: number
+      district: string
+      city: string
+      country: string
+    }) => {
+      setIsLoading(true)
+      setCoords({ lat: details.lat, lng: details.lng })
+      setDistrict(details.district)
+      setCity(details.city)
+      setCountry(details.country)
+      setError(null)
+
+      // Trigger location change event
+      window.dispatchEvent(
+        new CustomEvent("locationChanged", {
+          detail: details,
+        }),
+      )
+
+      toast({
+        title: "Location Changed",
+        description: `Now showing data for ${details.district}, ${details.city}`,
+      })
+
+      // Simulate loading for smooth UX
+      setTimeout(() => setIsLoading(false), 500)
+    },
+    [toast],
+  )
+
+  const refreshLocationData = useCallback(() => {
+    if (coords) {
+      fetchCityName(coords.lat, coords.lng)
+    }
+  }, [coords, fetchCityName])
+
+  useEffect(() => {
+    const hasCompletedOnboarding = localStorage.getItem("hasCompletedOnboarding")
+    if (hasCompletedOnboarding) {
+      requestLocation()
+    } else {
+      setIsLoading(false)
+    }
+  }, [requestLocation])
+
+  return (
+    <LocationContext.Provider
+      value={{
+        district,
+        city,
+        country,
+        coords,
+        error,
+        isLoading,
+        requestLocation,
+        setManualLocation,
+        refreshLocationData,
+      }}
+    >
+      {children}
+    </LocationContext.Provider>
+  )
+}
+
+export const useLocation = () => {
+  const context = useContext(LocationContext)
+  if (context === undefined) {
+    throw new Error("useLocation must be used within a LocationProvider")
+  }
+  return context
+}
+
+```
+
+## File: lib/firebase.ts
+
+```ts
+// lib/firebase.ts - UPDATED TO DISABLE EMULATOR
+import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app"
+import { 
+  getAuth, 
+  type Auth, 
+  // connectAuthEmulator, // REMOVE OR COMMENT THIS LINE
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
+  GoogleAuthProvider,
+  setPersistence,
+  browserSessionPersistence,
+  browserLocalPersistence,
+  onAuthStateChanged
+} from "firebase/auth"
+import { config } from "./config"
+
+// Firebase configuration using your OAuth project
+const firebaseConfig = {
+  apiKey: config.firebase.apiKey,
+  authDomain: config.firebase.authDomain,
+  projectId: config.firebase.projectId,
+  storageBucket: config.firebase.storageBucket,
+  messagingSenderId: config.firebase.messagingSenderId,
+  appId: config.firebase.appId,
+}
+
+// OAuth configuration with your client details
+export const oauthConfig = {
+  clientId: config.oauth.clientId,
+  projectId: config.oauth.projectId,
+}
+
+// More lenient validation - allow app to work with minimal config
+export const isFirebaseConfigValid = (): boolean => {
+  // Only require essential fields for OAuth to work
+  const essentialFields = ["apiKey", "authDomain", "projectId"]
+
+  const missingEssentialFields = essentialFields.filter(
+    (field) => !firebaseConfig[field as keyof typeof firebaseConfig],
+  )
+
+  if (missingEssentialFields.length > 0) {
+    console.warn("Missing essential Firebase configuration:", missingEssentialFields)
+    return false
+  }
+
+  // Check OAuth configuration
+  if (!config.oauth.clientId || !config.oauth.projectId) {
+    console.warn("Missing OAuth configuration")
+    return false
+  }
+
+  return true
+}
+
+let app: FirebaseApp | undefined
+let auth: Auth | undefined
+let initializationPromise: Promise<Auth> | undefined
+let initializationAttempted = false
+
+// Enhanced sign-in function with better error handling
+export async function signInWithGooglePopup(): Promise<any> {
+  try {
+    const authInstance = await getFirebaseAuth();
+    const provider = new GoogleAuthProvider();
+    
+    // Configure provider with your specific settings
+    provider.addScope("email");
+    provider.addScope("profile");
+    provider.setCustomParameters({
+      prompt: "select_account",
+      access_type: "online",
+    });
+
+    // Set auth persistence
+    await setPersistence(authInstance, browserLocalPersistence);
+
+    // Try popup first
+    try {
+      console.log("🚀 Attempting popup sign-in...");
+      const result = await signInWithPopup(authInstance, provider);
+      console.log("✅ Popup sign-in successful");
+      return result;
+    } catch (popupError: any) {
+      console.warn("⚠️ Popup sign-in failed:", popupError.code);
+      
+      // If popup fails, try redirect as fallback
+      if (popupError.code === 'auth/popup-blocked' || 
+          popupError.code === 'auth/popup-closed-by-user' ||
+          popupError.code === 'auth/cancelled-popup-request') {
+        
+        console.log('🔄 Fallback to redirect sign-in...');
+        await signInWithRedirect(authInstance, provider);
+        
+        // The redirect will handle the rest
+        throw new Error('redirect-initiated');
+      }
+      throw popupError;
+    }
+  } catch (error) {
+    console.error('❌ Google sign-in error:', error);
+    throw error;
+  }
+}
+
+// Check for redirect result on app initialization
+export async function checkRedirectResult(): Promise<any> {
+  try {
+    const authInstance = await getFirebaseAuth();
+    const result = await getRedirectResult(authInstance);
+    if (result) {
+      console.log("✅ Redirect sign-in successful");
+      return result;
+    }
+    return null;
+  } catch (error) {
+    console.error('❌ Redirect result error:', error);
+    return null;
+  }
+}
+
+// FIXED: Aggressive Firebase initialization WITHOUT EMULATOR
+function initializeFirebase(): Promise<Auth> {
+  if (initializationPromise) {
+    return initializationPromise
+  }
+
+  initializationPromise = new Promise(async (resolve, reject) => {
+    try {
+      // Check if we're in the browser
+      if (typeof window === "undefined") {
+        reject(new Error("Firebase can only be initialized in the browser"))
+        return
+      }
+
+      console.log("🔥 Starting Firebase initialization...")
+
+      // Initialize Firebase app with retry logic
+      try {
+        app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig)
+        console.log("✅ Firebase app initialized")
+      } catch (appError) {
+        console.error("❌ Failed to initialize Firebase app:", appError)
+        reject(appError)
+        return
+      }
+
+      // Initialize Auth
+      try {
+        auth = getAuth(app)
+        console.log("✅ Firebase Auth initialized")
+
+        // ⚠️ EMULATOR CONNECTION DISABLED FOR PRODUCTION USE
+        // NEVER CONNECT TO EMULATOR IN PRODUCTION
+        /*
+        if (process.env.NODE_ENV === 'development') {
+          try {
+            connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true })
+            console.log("🔧 Connected to Auth emulator")
+          } catch (emulatorError) {
+            console.warn("⚠️ Emulator connection failed:", emulatorError)
+          }
+        }
+        */
+
+        // Test auth instance
+        console.log("🧪 Testing auth instance...")
+        
+        // Wait a moment for auth to stabilize
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        console.log("✅ Firebase initialization complete")
+        resolve(auth)
+      } catch (authError) {
+        console.error("❌ Failed to initialize Firebase Auth:", authError)
+        reject(authError)
+      }
+    } catch (error) {
+      console.error("❌ Firebase initialization failed:", error)
+      reject(error)
+    }
+  })
+
+  return initializationPromise
+}
+
+// Get Firebase Auth with aggressive retry
+export async function getFirebaseAuth(): Promise<Auth> {
+  if (auth) {
+    return auth
+  }
+
+  if (!isFirebaseConfigValid()) {
+    throw new Error("Firebase configuration is invalid")
+  }
+
+  try {
+    return await initializeFirebase()
+  } catch (error) {
+    console.error("Failed to get Firebase Auth:", error)
+    throw error
+  }
+}
+
+// Wait for auth with timeout
+export function waitForAuth(timeoutMs = 10000): Promise<Auth> {
+  return Promise.race([
+    getFirebaseAuth(),
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Auth initialization timeout")), timeoutMs)
+    ),
+  ])
+}
+
+// Force re-initialization
+export async function forceInitializeFirebase(): Promise<Auth> {
+  initializationPromise = undefined
+  auth = undefined
+  app = undefined
+  initializationAttempted = false
+  
+  return initializeFirebase()
+}
+
+// Check if Firebase is ready
+export function isFirebaseReady(): boolean {
+  return !!(auth && app && isFirebaseConfigValid())
+}
+
+// Sign out
+export async function signOut(): Promise<void> {
+  if (!auth) {
+    console.warn("Auth not initialized, cannot sign out")
+    return
+  }
+
+  try {
+    await auth.signOut()
+    console.log("✅ Successfully signed out")
+  } catch (error) {
+    console.error("❌ Sign out error:", error)
+    throw error
+  }
+}
+```
+
+## File: lib/google-maps-sdk.ts
+
+```ts
+// lib/google-maps-sdk.ts - COMPLETE REPLACEMENT
+declare global {
+  interface Window {
+    google: typeof google
+    initMap?: () => void
+  }
+}
+
+interface LoaderOptions {
+  apiKey: string
+  version?: string
+  libraries?: string[]
+  language?: string
+  region?: string
+}
+
+class GoogleMapsLoader {
+  private static instance: GoogleMapsLoader
+  private loaded = false
+  private loading = false
+  private loadPromise: Promise<typeof google.maps> | null = null
+  private options: LoaderOptions | null = null
+
+  private constructor() {}
+
+  static getInstance(): GoogleMapsLoader {
+    if (!GoogleMapsLoader.instance) {
+      GoogleMapsLoader.instance = new GoogleMapsLoader()
+    }
+    return GoogleMapsLoader.instance
+  }
+
+  async load(options: LoaderOptions): Promise<typeof google.maps> {
+    // If already loaded, return immediately
+    if (this.loaded && window.google?.maps) {
+      return window.google.maps
+    }
+
+    // If currently loading, return the existing promise
+    if (this.loading && this.loadPromise) {
+      return this.loadPromise
+    }
+
+    // Store options for potential retries
+    this.options = options
+
+    // Start loading
+    this.loading = true
+    this.loadPromise = this.loadScript(options)
+
+    try {
+      const maps = await this.loadPromise
+      this.loaded = true
+      this.loading = false
+      return maps
+    } catch (error) {
+      this.loading = false
+      this.loadPromise = null
+      throw error
+    }
+  }
+
+  private async loadScript(options: LoaderOptions): Promise<typeof google.maps> {
+    return new Promise((resolve, reject) => {
+      // Check if script already exists
+      const existingScript = document.querySelector('script[src*="maps.googleapis.com"]')
+      
+      if (existingScript) {
+        if (window.google?.maps) {
+          resolve(window.google.maps)
+          return
+        }
+        
+        // Wait for existing script to complete
+        existingScript.addEventListener('load', () => {
+          if (window.google?.maps) {
+            resolve(window.google.maps)
+          } else {
+            reject(new Error('Google Maps API loaded but not available'))
+          }
+        })
+        
+        existingScript.addEventListener('error', () => {
+          reject(new Error('Failed to load existing Google Maps script'))
+        })
+        return
+      }
+
+      // Create new script element
+      const script = document.createElement('script')
+      const params = new URLSearchParams({
+        key: options.apiKey,
+        v: options.version || 'weekly',
+        libraries: (options.libraries || ['places', 'geometry']).join(','),
+        ...(options.language && { language: options.language }),
+        ...(options.region && { region: options.region })
+      })
+
+      script.src = `https://maps.googleapis.com/maps/api/js?${params.toString()}`
+      script.async = true
+      script.defer = true
+
+      script.onload = () => {
+        if (window.google?.maps) {
+          resolve(window.google.maps)
+        } else {
+          reject(new Error('Google Maps API loaded but not available'))
+        }
+      }
+
+      script.onerror = () => {
+        reject(new Error('Failed to load Google Maps script'))
+      }
+
+      document.head.appendChild(script)
+    })
+  }
+
+  // Force reload the script (useful for error recovery)
+  async reload(): Promise<typeof google.maps> {
+    // Remove existing script
+    const existingScript = document.querySelector('script[src*="maps.googleapis.com"]')
+    if (existingScript) {
+      existingScript.remove()
+    }
+
+    // Reset state
+    this.loaded = false
+    this.loading = false
+    this.loadPromise = null
+
+    // Reload with last used options
+    if (!this.options) {
+      throw new Error('No loader options available for reload')
+    }
+
+    return this.load(this.options)
+  }
+
+  isLoaded(): boolean {
+    return this.loaded && !!window.google?.maps
+  }
+
+  isLoading(): boolean {
+    return this.loading
+  }
+}
+
+// Main initialization function
+export async function initializeGoogleMaps(): Promise<typeof google.maps> {
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+  
+  if (!apiKey) {
+    throw new Error('Google Maps API key not configured')
+  }
+
+  const loader = GoogleMapsLoader.getInstance()
+  
+  try {
+    return await loader.load({
+      apiKey,
+      version: 'weekly',
+      libraries: ['places', 'geometry', 'marker']
+    })
+  } catch (error) {
+    console.error('Failed to initialize Google Maps:', error)
+    throw error
+  }
+}
+
+// Enhanced Services Classes
+export class PlacesService {
+  private service: google.maps.places.PlacesService | null = null
+  private map: google.maps.Map | null = null
+
+  async initialize(): Promise<void> {
+    await initializeGoogleMaps()
+    
+    // Create a hidden div for the service
+    const div = document.createElement('div')
+    div.style.display = 'none'
+    document.body.appendChild(div)
+    
+    this.map = new google.maps.Map(div)
+    this.service = new google.maps.places.PlacesService(this.map)
+  }
+
+  async nearbySearch(
+    location: google.maps.LatLng, 
+    radius: number, 
+    type?: string
+  ): Promise<google.maps.places.PlaceResult[]> {
+    if (!this.service) {
+      throw new Error('PlacesService not initialized')
+    }
+
+    return new Promise((resolve, reject) => {
+      const request: google.maps.places.PlaceSearchRequest = {
+        location,
+        radius,
+        ...(type && { type: type as any })
+      }
+
+      this.service!.nearbySearch(request, (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+          resolve(results)
+        } else {
+          reject(new Error(`Places API error: ${status}`))
+        }
+      })
+    })
+  }
+
+  async textSearch(query: string): Promise<google.maps.places.PlaceResult[]> {
+    if (!this.service) {
+      throw new Error('PlacesService not initialized')
+    }
+
+    return new Promise((resolve, reject) => {
+      const request: google.maps.places.TextSearchRequest = {
+        query
+      }
+
+      this.service!.textSearch(request, (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+          resolve(results)
+        } else {
+          reject(new Error(`Places API error: ${status}`))
+        }
+      })
+    })
+  }
+}
+
+export class DirectionsService {
+  private service: google.maps.DirectionsService | null = null
+
+  async initialize(): Promise<void> {
+    await initializeGoogleMaps()
+    this.service = new google.maps.DirectionsService()
+  }
+
+  async getDirections(
+    origin: google.maps.LatLng | string,
+    destination: google.maps.LatLng | string,
+    travelMode: google.maps.TravelMode = google.maps.TravelMode.DRIVING
+  ): Promise<google.maps.DirectionsResult> {
+    if (!this.service) {
+      throw new Error('DirectionsService not initialized')
+    }
+
+    return new Promise((resolve, reject) => {
+      const request: google.maps.DirectionsRequest = {
+        origin,
+        destination,
+        travelMode
+      }
+
+      this.service!.route(request, (result, status) => {
+        if (status === google.maps.DirectionsStatus.OK && result) {
+          resolve(result)
+        } else {
+          reject(new Error(`Directions API error: ${status}`))
+        }
+      })
+    })
+  }
+}
+
+export class GeocodingService {
+  private service: google.maps.Geocoder | null = null
+
+  async initialize(): Promise<void> {
+    await initializeGoogleMaps()
+    this.service = new google.maps.Geocoder()
+  }
+
+  async reverseGeocode(location: google.maps.LatLng): Promise<google.maps.GeocoderResult[]> {
+    if (!this.service) {
+      throw new Error('GeocodingService not initialized')
+    }
+
+    return new Promise((resolve, reject) => {
+      const request: google.maps.GeocoderRequest = {
+        location
+      }
+
+      this.service!.geocode(request, (results, status) => {
+        if (status === google.maps.GeocoderStatus.OK && results) {
+          resolve(results)
+        } else {
+          reject(new Error(`Geocoding API error: ${status}`))
+        }
+      })
+    })
+  }
+
+  async geocode(address: string): Promise<google.maps.GeocoderResult[]> {
+    if (!this.service) {
+      throw new Error('GeocodingService not initialized')
+    }
+
+    return new Promise((resolve, reject) => {
+      const request: google.maps.GeocoderRequest = {
+        address
+      }
+
+      this.service!.geocode(request, (results, status) => {
+        if (status === google.maps.GeocoderStatus.OK && results) {
+          resolve(results)
+        } else {
+          reject(new Error(`Geocoding API error: ${status}`))
+        }
+      })
+    })
+  }
+}
+
+// Utility function to get the loader instance
+export function getGoogleMapsLoader(): GoogleMapsLoader {
+  return GoogleMapsLoader.getInstance()
+}
+
+// Export the main loader for manual control
+export { GoogleMapsLoader }
+```
+
+## File: lib/api-services.ts
+
+```ts
+import { config } from "./config"
+
+// Types
+export interface WeatherData {
+  temperature: number
+  description: string
+  humidity: number
+  windSpeed: number
+}
+
+export interface AirQualityData {
+  aqi: number
+  level: string
+  pm25: number
+  pm10: number
+}
+
+export interface TrafficData {
+  status: string
+  avgSpeed: number
+  congestionLevel: number
+}
+
+export interface CityMoodData {
+  mood: string
+  score: number
+  trending: string
+}
+
+// Error handling utility
+class APIError extends Error {
+  constructor(
+    message: string,
+    public status?: number,
+    public service?: string,
+  ) {
+    super(message)
+    this.name = "APIError"
+  }
+}
+
+// Cache utility
+class SimpleCache {
+  private cache = new Map<string, { data: any; timestamp: number; ttl: number }>()
+
+  set(key: string, data: any, ttl: number) {
+    this.cache.set(key, { data, timestamp: Date.now(), ttl })
+  }
+
+  get(key: string) {
+    const item = this.cache.get(key)
+    if (!item) return null
+
+    if (Date.now() - item.timestamp > item.ttl) {
+      this.cache.delete(key)
+      return null
+    }
+
+    return item.data
+  }
+
+  clear() {
+    this.cache.clear()
+  }
+}
+
+const cache = new SimpleCache()
+
+// OpenWeatherMap API with enhanced error handling and rate limiting
+export async function fetchWeatherData(lat: number, lng: number): Promise<WeatherData> {
+  const cacheKey = `weather_${lat}_${lng}`
+  const cached = cache.get(cacheKey)
+  if (cached) return cached
+
+  const API_KEY = config.apis.openWeather.key
+
+  if (!API_KEY) {
+    console.warn("OpenWeather API key not configured, using fallback data")
+    return getFallbackWeatherData(lat, lng)
+  }
+
+  try {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+
+    const response = await fetch(
+      `${config.endpoints.weather}/weather?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=metric`,
+      {
+        headers: {
+          Accept: "application/json",
+          "User-Agent": "XphoraPulse/1.0",
+        },
+        signal: controller.signal,
+        // Remove Next.js caching to avoid conflicts
+      },
+    )
+
+    clearTimeout(timeoutId)
+
+    if (response.status === 429) {
+      console.warn("Weather API rate limit exceeded, using fallback data")
+      const fallbackData = getFallbackWeatherData(lat, lng)
+      // Cache fallback data for shorter duration during rate limiting
+      cache.set(cacheKey, fallbackData, 60000) // 1 minute cache
+      return fallbackData
+    }
+
+    if (response.status === 401) {
+      console.error("Weather API authentication failed - invalid API key")
+      return getFallbackWeatherData(lat, lng)
+    }
+
+    if (!response.ok) {
+      throw new APIError(`Weather API failed: ${response.status}`, response.status, "openweather")
+    }
+
+    const data = await response.json()
+
+    if (!data.main || !data.weather || !data.weather[0]) {
+      throw new Error("Invalid weather data structure")
+    }
+
+    const weatherData: WeatherData = {
+      temperature: Math.round(data.main.temp),
+      description: data.weather[0].description,
+      humidity: data.main.humidity,
+      windSpeed: Math.round((data.wind?.speed || 0) * 10) / 10,
+    }
+
+    cache.set(cacheKey, weatherData, config.cache.weatherTTL)
+    return weatherData
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      console.error("Weather API request timeout")
+    } else {
+      console.error("Weather API error:", error)
+    }
+
+    const fallbackData = getFallbackWeatherData(lat, lng)
+    // Cache fallback data briefly to avoid repeated failed requests
+    cache.set(cacheKey, fallbackData, 30000) // 30 seconds cache for errors
+    return fallbackData
+  }
+}
+
+// OpenWeatherMap Air Pollution API with enhanced error handling
+export async function fetchAirQualityData(lat: number, lng: number): Promise<AirQualityData> {
+  const cacheKey = `air_${lat}_${lng}`
+  const cached = cache.get(cacheKey)
+  if (cached) return cached
+
+  const API_KEY = config.apis.openWeather.key
+
+  if (!API_KEY) {
+    console.warn("OpenWeather API key not configured, using fallback data")
+    return getFallbackAirQualityData(lat, lng)
+  }
+
+  try {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 10000)
+
+    const response = await fetch(`${config.endpoints.weather}/air_pollution?lat=${lat}&lon=${lng}&appid=${API_KEY}`, {
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "XphoraPulse/1.0",
+      },
+      signal: controller.signal,
+    })
+
+    clearTimeout(timeoutId)
+
+    if (response.status === 429) {
+      console.warn("Air Quality API rate limit exceeded, using fallback data")
+      const fallbackData = getFallbackAirQualityData(lat, lng)
+      cache.set(cacheKey, fallbackData, 60000) // 1 minute cache
+      return fallbackData
+    }
+
+    if (response.status === 401) {
+      console.error("Air Quality API authentication failed - invalid API key")
+      return getFallbackAirQualityData(lat, lng)
+    }
+
+    if (!response.ok) {
+      throw new APIError(`Air Quality API failed: ${response.status}`, response.status, "openweather")
+    }
+
+    const data = await response.json()
+
+    if (!data.list || !data.list[0] || !data.list[0].main) {
+      throw new Error("Invalid air quality data structure")
+    }
+
+    const aqi = data.list[0].main.aqi
+    const components = data.list[0].components
+
+    const getAQILevel = (aqi: number) => {
+      switch (aqi) {
+        case 1:
+          return "Good"
+        case 2:
+          return "Fair"
+        case 3:
+          return "Moderate"
+        case 4:
+          return "Poor"
+        case 5:
+          return "Very Poor"
+        default:
+          return "Unknown"
+      }
+    }
+
+    const airQualityData: AirQualityData = {
+      aqi: aqi * 20, // Convert to 0-100 scale
+      level: getAQILevel(aqi),
+      pm25: Math.round(components?.pm2_5 || 0),
+      pm10: Math.round(components?.pm10 || 0),
+    }
+
+    cache.set(cacheKey, airQualityData, config.cache.weatherTTL)
+    return airQualityData
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      console.error("Air Quality API request timeout")
+    } else {
+      console.error("Air Quality API error:", error)
+    }
+
+    const fallbackData = getFallbackAirQualityData(lat, lng)
+    cache.set(cacheKey, fallbackData, 30000) // 30 seconds cache for errors
+    return fallbackData
+  }
+}
+
+// Location-aware traffic data (mock implementation)
+export async function fetchTrafficData(lat: number, lng: number): Promise<TrafficData> {
+  const cacheKey = `traffic_${lat}_${lng}`
+  const cached = cache.get(cacheKey)
+  if (cached) return cached
+
+  // Simulate API call delay
+  await new Promise((resolve) => setTimeout(resolve, 300))
+
+  const hour = new Date().getHours()
+  let baseCongestion = 0.3
+
+  // Peak hours adjustment
+  if ((hour >= 8 && hour <= 10) || (hour >= 17 && hour <= 19)) {
+    baseCongestion = 0.8
+  } else if ((hour >= 11 && hour <= 16) || (hour >= 20 && hour <= 22)) {
+    baseCongestion = 0.5
+  }
+
+  // Location-based adjustment
+  const locationFactor = Math.abs(Math.sin(lat * lng)) * 0.3
+  const congestionLevel = Math.min(1, baseCongestion + locationFactor)
+  const avgSpeed = Math.round(50 - congestionLevel * 30)
+
+  const getStatus = (level: number) => {
+    if (level < 0.3) return "Light"
+    if (level < 0.6) return "Moderate"
+    return "Heavy"
+  }
+
+  const trafficData: TrafficData = {
+    status: getStatus(congestionLevel),
+    avgSpeed,
+    congestionLevel,
+  }
+
+  cache.set(cacheKey, trafficData, config.cache.trafficTTL)
+  return trafficData
+}
+
+// Location-aware city mood data
+export async function fetchCityMoodData(district?: string | null, city?: string | null): Promise<CityMoodData> {
+  const cacheKey = `mood_${district}_${city}`
+  const cached = cache.get(cacheKey)
+  if (cached) return cached
+
+  await new Promise((resolve) => setTimeout(resolve, 200))
+
+  const moods = ["Positive", "Neutral", "Concerned", "Excited", "Calm"]
+  const trends = ["Trending up", "Stable", "Declining", "Improving", "Mixed signals"]
+
+  const locationSeed = district ? district.length + (city?.length || 0) : Math.random() * 100
+  const moodIndex = Math.floor(locationSeed % moods.length)
+  const trendIndex = Math.floor((locationSeed * 1.5) % trends.length)
+
+  const cityMoodData: CityMoodData = {
+    mood: moods[moodIndex],
+    score: Math.round(50 + (locationSeed % 40)),
+    trending: trends[trendIndex],
+  }
+
+  cache.set(cacheKey, cityMoodData, config.cache.weatherTTL)
+  return cityMoodData
+}
+
+// Fallback data functions
+function getFallbackWeatherData(lat: number, lng: number): WeatherData {
+  const locationVariation = Math.sin(lat * lng) * 5
+  return {
+    temperature: Math.round(28 + locationVariation),
+    description: "partly cloudy",
+    humidity: Math.round(65 + locationVariation),
+    windSpeed: Math.round((3.2 + locationVariation) * 10) / 10,
+  }
+}
+
+function getFallbackAirQualityData(lat: number, lng: number): AirQualityData {
+  const locationVariation = Math.abs(Math.sin(lat * lng)) * 30
+  const baseAqi = 78 + locationVariation
+  return {
+    aqi: Math.round(Math.min(100, baseAqi)),
+    level: baseAqi < 50 ? "Good" : baseAqi < 80 ? "Moderate" : "Poor",
+    pm25: Math.round(35 + locationVariation * 0.5),
+    pm10: Math.round(45 + locationVariation * 0.7),
+  }
+}
+
+// Utility to clear all caches
+export function clearAPICache() {
+  cache.clear()
+}
+
+// Rate limiting utility
+class RateLimiter {
+  private requests: Map<string, number[]> = new Map()
+  private maxRequests: number
+  private windowMs: number
+
+  constructor(maxRequests = 60, windowMs = 60000) {
+    // 60 requests per minute
+    this.maxRequests = maxRequests
+    this.windowMs = windowMs
+  }
+
+  canMakeRequest(key: string): boolean {
+    const now = Date.now()
+    const requests = this.requests.get(key) || []
+
+    // Remove old requests outside the window
+    const validRequests = requests.filter((time) => now - time < this.windowMs)
+
+    if (validRequests.length >= this.maxRequests) {
+      return false
+    }
+
+    // Add current request
+    validRequests.push(now)
+    this.requests.set(key, validRequests)
+    return true
+  }
+
+  getWaitTime(key: string): number {
+    const requests = this.requests.get(key) || []
+    if (requests.length === 0) return 0
+
+    const oldestRequest = Math.min(...requests)
+    const waitTime = this.windowMs - (Date.now() - oldestRequest)
+    return Math.max(0, waitTime)
+  }
+}
+
+export const weatherRateLimiter = new RateLimiter(60, 60000) // 60 requests per minute
+
+```
+
+## File: lib/google-services.ts
+
+```ts
+// lib/google-services.ts - COMPLETE REPLACEMENT
+import { config } from "./config"
+
+// Types for Google APIs
+export interface WeatherData {
+  temperature: number
+  description: string
+  humidity: number
+  windSpeed: number
+  condition: string
+}
+
+export interface AirQualityData {
+  aqi: number
+  level: string
+  pm25: number
+  pm10: number
+  pollutants: string[]
+}
+
+export interface TrafficData {
+  status: string
+  avgSpeed: number
+  congestionLevel: number
+  duration: string
+  distance: string
+}
+
+export interface CityMoodData {
+  mood: string
+  score: number
+  trending: string
+}
+
+export interface PlaceDetails {
+  name: string
+  rating: number
+  types: string[]
+  vicinity: string
+  businessStatus: string
+}
+
+// Cache utility
+class SimpleCache {
+  private cache = new Map<string, { data: any; timestamp: number; ttl: number }>()
+
+  set(key: string, data: any, ttl: number) {
+    this.cache.set(key, { data, timestamp: Date.now(), ttl })
+  }
+
+  get(key: string) {
+    const item = this.cache.get(key)
+    if (!item) return null
+
+    if (Date.now() - item.timestamp > item.ttl) {
+      this.cache.delete(key)
+      return null
+    }
+
+    return item.data
+  }
+
+  clear() {
+    this.cache.clear()
+  }
+}
+
+const cache = new SimpleCache()
+
+// Helper function to check if Google Maps is loaded
+function isGoogleMapsLoaded(): boolean {
+  return !!(window.google && window.google.maps && window.google.maps.places)
+}
+
+// Helper function to wait for Google Maps to load
+function waitForGoogleMaps(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (isGoogleMapsLoaded()) {
+      resolve()
+      return
+    }
+
+    let attempts = 0
+    const maxAttempts = 50 // 5 seconds max wait
+
+    const checkInterval = setInterval(() => {
+      attempts++
+      if (isGoogleMapsLoaded()) {
+        clearInterval(checkInterval)
+        resolve()
+      } else if (attempts >= maxAttempts) {
+        clearInterval(checkInterval)
+        reject(new Error('Google Maps failed to load'))
+      }
+    }, 100)
+  })
+}
+
+// Fallback data functions
+function getFallbackPlaces(): PlaceDetails[] {
+  return [
+    {
+      name: "Local Restaurant",
+      rating: 4.2,
+      types: ["restaurant", "food", "establishment"],
+      vicinity: "Near you",
+      businessStatus: "OPERATIONAL",
+    },
+    {
+      name: "Gas Station",
+      rating: 3.8,
+      types: ["gas_station", "establishment"],
+      vicinity: "Main Road",
+      businessStatus: "OPERATIONAL",
+    },
+    {
+      name: "Shopping Mall",
+      rating: 4.5,
+      types: ["shopping_mall", "establishment"],
+      vicinity: "City Center",
+      businessStatus: "OPERATIONAL",
+    },
+  ]
+}
+
+function getFallbackAirQualityData(lat: number, lng: number): AirQualityData {
+  const locationVariation = Math.abs(Math.sin(lat * lng)) * 20
+  const baseAqi = Math.round(60 + locationVariation)
+  
+  return {
+    aqi: baseAqi,
+    level: baseAqi < 50 ? "Good" : baseAqi < 80 ? "Moderate" : "Poor",
+    pm25: Math.round(35 + locationVariation * 0.5),
+    pm10: Math.round(45 + locationVariation * 0.7),
+    pollutants: ["PM2.5", "PM10"]
+  }
+}
+
+function getLocationBasedWeather(lat: number, lng: number): WeatherData {
+  const hour = new Date().getHours()
+  const locationVariation = Math.abs(Math.sin(lat * lng)) * 10
+  
+  let baseTemp = 25 + locationVariation
+  
+  // Time-based temperature adjustment
+  if (hour >= 6 && hour <= 18) {
+    baseTemp += Math.sin((hour - 6) * Math.PI / 12) * 8
+  } else {
+    baseTemp -= 5
+  }
+
+  const conditions = ["Clear", "Partly Cloudy", "Cloudy", "Light Rain"]
+  const condition = conditions[Math.floor(Math.abs(Math.sin(lat + lng)) * conditions.length)]
+
+  return {
+    temperature: Math.round(baseTemp),
+    description: condition,
+    humidity: Math.round(60 + locationVariation),
+    windSpeed: Math.round(5 + locationVariation * 0.5),
+    condition: condition
+  }
+}
+
+// Updated fetchNearbyPlaces function with proper error handling
+export async function fetchNearbyPlaces(lat: number, lng: number, type = "establishment"): Promise<PlaceDetails[]> {
+  const cacheKey = `places_${lat}_${lng}_${type}`
+  const cached = cache.get(cacheKey)
+  if (cached) return cached
+
+  const API_KEY = config.apis.googleMaps.key
+
+  if (!API_KEY) {
+    console.warn("Google Maps API key not configured, using fallback data")
+    return getFallbackPlaces()
+  }
+
+  try {
+    // Wait for Google Maps to be available
+    await waitForGoogleMaps()
+
+    // Create a minimal map for the PlacesService
+    const mapDiv = document.createElement('div')
+    mapDiv.style.display = 'none'
+    document.body.appendChild(mapDiv)
+    
+    const map = new google.maps.Map(mapDiv, {
+      center: { lat, lng },
+      zoom: 13
+    })
+
+    const service = new google.maps.places.PlacesService(map)
+    const location = new google.maps.LatLng(lat, lng)
+
+    const results = await new Promise<google.maps.places.PlaceResult[]>((resolve, reject) => {
+      const request: google.maps.places.PlaceSearchRequest = {
+        location,
+        radius: 1000,
+        type: type as any
+      }
+
+      service.nearbySearch(request, (results, status) => {
+        // Clean up the temporary map
+        document.body.removeChild(mapDiv)
+        
+        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+          resolve(results)
+        } else {
+          reject(new Error(`Places API error: ${status}`))
+        }
+      })
+    })
+
+    const places: PlaceDetails[] = results.slice(0, 10).map((place) => ({
+      name: place.name || "Unknown Place",
+      rating: place.rating || 0,
+      types: place.types || [],
+      vicinity: place.vicinity || "",
+      businessStatus: place.business_status || "OPERATIONAL",
+    }))
+
+    cache.set(cacheKey, places, config.cache.weatherTTL)
+    return places
+  } catch (error) {
+    console.error("Places API error:", error)
+    return getFallbackPlaces()
+  }
+}
+
+// Updated fetchLocationDetails function
+export async function fetchLocationDetails(lat: number, lng: number): Promise<any> {
+  const cacheKey = `location_${lat}_${lng}`
+  const cached = cache.get(cacheKey)
+  if (cached) return cached
+
+  const API_KEY = config.apis.googleMaps.key
+
+  if (!API_KEY) {
+    console.warn("Google Maps API key not configured")
+    return null
+  }
+
+  try {
+    await waitForGoogleMaps()
+
+    const geocoder = new google.maps.Geocoder()
+    const location = new google.maps.LatLng(lat, lng)
+
+    const results = await new Promise<google.maps.GeocoderResult[]>((resolve, reject) => {
+      geocoder.geocode({ location }, (results, status) => {
+        if (status === google.maps.GeocoderStatus.OK && results) {
+          resolve(results)
+        } else {
+          reject(new Error(`Geocoding API error: ${status}`))
+        }
+      })
+    })
+
+    const data = { results }
+    cache.set(cacheKey, data, config.cache.locationTTL)
+    return data
+  } catch (error) {
+    console.error("Geocoding API error:", error)
+    return null
+  }
+}
+
+// Weather data function (location-based simulation)
+export async function fetchWeatherData(lat: number, lng: number): Promise<WeatherData> {
+  const cacheKey = `weather_${lat}_${lng}`
+  const cached = cache.get(cacheKey)
+  if (cached) return cached
+
+  // Use location and time-based simulation for realistic weather
+  const weatherData = getLocationBasedWeather(lat, lng)
+  cache.set(cacheKey, weatherData, config.cache.weatherTTL)
+  return weatherData
+}
+
+// Air quality data function
+export async function fetchAirQualityData(lat: number, lng: number): Promise<AirQualityData> {
+  const cacheKey = `air_${lat}_${lng}`
+  const cached = cache.get(cacheKey)
+  if (cached) return cached
+
+  try {
+    // Get nearby places to estimate air quality
+    const places = await fetchNearbyPlaces(lat, lng, "establishment")
+    const industrialPlaces = places.filter((p) =>
+      p.types.some(
+        (type) => type.includes("gas_station") || type.includes("car_repair") || type.includes("bus_station"),
+      ),
+    )
+
+    // Base AQI calculation on location and nearby industrial activity
+    let baseAqi = 60 + Math.abs(Math.sin(lat * lng)) * 30
+
+    // Adjust based on industrial activity
+    baseAqi += industrialPlaces.length * 5
+
+    // Time-based adjustment (worse during peak hours)
+    const hour = new Date().getHours()
+    if ((hour >= 8 && hour <= 10) || (hour >= 17 && hour <= 19)) {
+      baseAqi += 15
+    }
+
+    const aqi = Math.round(Math.min(150, Math.max(20, baseAqi)))
+
+    const getAQILevel = (aqi: number) => {
+      if (aqi <= 50) return "Good"
+      if (aqi <= 100) return "Moderate"
+      if (aqi <= 150) return "Unhealthy for Sensitive Groups"
+      return "Unhealthy"
+    }
+
+    const airQualityData: AirQualityData = {
+      aqi,
+      level: getAQILevel(aqi),
+      pm25: Math.round(aqi * 0.4),
+      pm10: Math.round(aqi * 0.6),
+      pollutants: industrialPlaces.length > 2 ? ["NO2", "PM2.5", "PM10"] : ["PM2.5", "PM10"],
+    }
+
+    cache.set(cacheKey, airQualityData, config.cache.weatherTTL)
+    return airQualityData
+  } catch (error) {
+    console.error("Air Quality estimation error:", error)
+    return getFallbackAirQualityData(lat, lng)
+  }
+}
+
+// Traffic data function
+export async function fetchTrafficData(lat: number, lng: number): Promise<TrafficData> {
+  const cacheKey = `traffic_${lat}_${lng}`
+  const cached = cache.get(cacheKey)
+  if (cached) return cached
+
+  // Simulate API call delay
+  await new Promise((resolve) => setTimeout(resolve, 300))
+
+  const hour = new Date().getHours()
+  let baseCongestion = 0.3
+
+  // Peak hours adjustment
+  if ((hour >= 8 && hour <= 10) || (hour >= 17 && hour <= 19)) {
+    baseCongestion = 0.8
+  } else if ((hour >= 11 && hour <= 16) || (hour >= 20 && hour <= 22)) {
+    baseCongestion = 0.5
+  }
+
+  // Location-based adjustment
+  const locationFactor = Math.abs(Math.sin(lat * lng)) * 0.3
+  const congestionLevel = Math.min(1, baseCongestion + locationFactor)
+  const avgSpeed = Math.round(50 - congestionLevel * 30)
+
+  const getStatus = (level: number) => {
+    if (level < 0.3) return "Light"
+    if (level < 0.6) return "Moderate"
+    return "Heavy"
+  }
+
+  const trafficData: TrafficData = {
+    status: getStatus(congestionLevel),
+    avgSpeed,
+    congestionLevel,
+    duration: `${Math.round(15 + congestionLevel * 10)} min`,
+    distance: `${Math.round(5 + Math.random() * 10)} km`
+  }
+
+  cache.set(cacheKey, trafficData, config.cache.trafficTTL)
+  return trafficData
+}
+
+// City mood data function
+export async function fetchCityMoodData(
+  district?: string | null,
+  city?: string | null,
+  coords?: { lat: number; lng: number } | null
+): Promise<CityMoodData> {
+  const cacheKey = `mood_${district}_${city}`
+  const cached = cache.get(cacheKey)
+  if (cached) return cached
+
+  await new Promise((resolve) => setTimeout(resolve, 200))
+
+  const moods = ["Positive", "Neutral", "Concerned", "Excited", "Calm"]
+  const trends = ["up", "stable", "down", "improving", "mixed"]
+
+  const locationSeed = district ? district.charCodeAt(0) + (city?.charCodeAt(0) || 0) : Math.random() * 100
+  const moodIndex = Math.floor(locationSeed) % moods.length
+  const trendIndex = Math.floor(locationSeed * 1.5) % trends.length
+
+  const score = Math.round(60 + (locationSeed % 40))
+
+  const cityMoodData: CityMoodData = {
+    mood: moods[moodIndex],
+    score,
+    trending: trends[trendIndex]
+  }
+
+  cache.set(cacheKey, cityMoodData, config.cache.weatherTTL)
+  return cityMoodData
+}
+
+// Utility to clear all caches
+export function clearAPICache() {
+  cache.clear()
+}
+```
+
+## File: lib/report-storage.ts
+
+```ts
+// lib/report-storage.ts
+export interface UserReport {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail?: string;
+  userAvatar?: string;
+  location: {
+    lat: number;
+    lng: number;
+    address?: string;
+  };
+  media: {
+    url: string;
+    type: 'image' | 'video';
+    fileName: string;
+    size: number;
+  };
+  analysis: {
+    category: string;
+    severity: 'low' | 'medium' | 'high' | 'critical';
+    description: string;
+    tags: string[];
+    confidence: number;
+    suggestedActions: string[];
+    landmarks: string[];
+    aiTitle: string;
+  };
+  userComments?: string;
+  timestamp: Date;
+  status: 'pending' | 'analyzed' | 'verified' | 'resolved';
+  views: number;
+  helpfulVotes: number;
+  verifiedBy?: string;
+  resolvedAt?: Date;
+}
+
+export interface ReportFilter {
+  categories?: string[];
+  severities?: string[];
+  timeRange?: 'hour' | 'day' | 'week' | 'month';
+  status?: string[];
+  userId?: string;
+}
+
+class ReportStorageService {
+  private readonly STORAGE_KEY = 'xphora_reports';
+  private readonly USER_KEY = 'xphora_user';
+
+  // User management
+  getCurrentUser(): { id: string; name: string; email?: string; avatar?: string } | null {
+    try {
+      const userData = localStorage.getItem(this.USER_KEY);
+      if (userData) {
+        return JSON.parse(userData);
+      }
+      // Create anonymous user if none exists
+      const anonymousUser = {
+        id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        name: `Citizen ${Math.floor(Math.random() * 1000)}`,
+        email: undefined,
+        avatar: undefined
+      };
+      this.setCurrentUser(anonymousUser);
+      return anonymousUser;
+    } catch (error) {
+      console.error('Error getting current user:', error);
+      return null;
+    }
+  }
+
+  setCurrentUser(user: { id: string; name: string; email?: string; avatar?: string }): void {
+    try {
+      localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+    } catch (error) {
+      console.error('Error setting current user:', error);
+    }
+  }
+
+  // Report storage operations
+  saveReport(reportData: Omit<UserReport, 'id' | 'timestamp' | 'views' | 'helpfulVotes' | 'status'>): string {
+    try {
+      const reports = this.getAllReports();
+      const newReport: UserReport = {
+        ...reportData,
+        id: `report_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        timestamp: new Date(),
+        views: 0,
+        helpfulVotes: 0,
+        status: 'analyzed'
+      };
+
+      reports.unshift(newReport); // Add to beginning of array (newest first)
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(reports));
+      
+      console.log('Report saved successfully:', newReport.id);
+      return newReport.id;
+    } catch (error) {
+      console.error('Error saving report:', error);
+      throw new Error('Failed to save report');
+    }
+  }
+
+  getAllReports(): UserReport[] {
+    try {
+      const reportsData = localStorage.getItem(this.STORAGE_KEY);
+      if (!reportsData) return [];
+      
+      const reports = JSON.parse(reportsData);
+      // Convert timestamp strings back to Date objects
+      return reports.map((report: any) => ({
+        ...report,
+        timestamp: new Date(report.timestamp),
+        resolvedAt: report.resolvedAt ? new Date(report.resolvedAt) : undefined
+      }));
+    } catch (error) {
+      console.error('Error getting reports:', error);
+      return [];
+    }
+  }
+
+  getReportById(id: string): UserReport | null {
+    try {
+      const reports = this.getAllReports();
+      return reports.find(report => report.id === id) || null;
+    } catch (error) {
+      console.error('Error getting report by ID:', error);
+      return null;
+    }
+  }
+
+  getFilteredReports(filter: ReportFilter): UserReport[] {
+    try {
+      let reports = this.getAllReports();
+
+      // Filter by categories
+      if (filter.categories && filter.categories.length > 0) {
+        reports = reports.filter(report => 
+          filter.categories!.includes(report.analysis.category)
+        );
+      }
+
+      // Filter by severities
+      if (filter.severities && filter.severities.length > 0) {
+        reports = reports.filter(report => 
+          filter.severities!.includes(report.analysis.severity)
+        );
+      }
+
+      // Filter by time range
+      if (filter.timeRange) {
+        const now = new Date();
+        const timeLimit = new Date();
+        
+        switch (filter.timeRange) {
+          case 'hour':
+            timeLimit.setHours(now.getHours() - 1);
+            break;
+          case 'day':
+            timeLimit.setDate(now.getDate() - 1);
+            break;
+          case 'week':
+            timeLimit.setDate(now.getDate() - 7);
+            break;
+          case 'month':
+            timeLimit.setMonth(now.getMonth() - 1);
+            break;
+        }
+
+        reports = reports.filter(report => report.timestamp >= timeLimit);
+      }
+
+      // Filter by status
+      if (filter.status && filter.status.length > 0) {
+        reports = reports.filter(report => 
+          filter.status!.includes(report.status)
+        );
+      }
+
+      // Filter by user ID
+      if (filter.userId) {
+        reports = reports.filter(report => report.userId === filter.userId);
+      }
+
+      return reports;
+    } catch (error) {
+      console.error('Error filtering reports:', error);
+      return [];
+    }
+  }
+
+  updateReportStatus(reportId: string, status: UserReport['status'], verifiedBy?: string): boolean {
+    try {
+      const reports = this.getAllReports();
+      const reportIndex = reports.findIndex(report => report.id === reportId);
+      
+      if (reportIndex === -1) return false;
+
+      reports[reportIndex].status = status;
+      if (verifiedBy) {
+        reports[reportIndex].verifiedBy = verifiedBy;
+      }
+      if (status === 'resolved') {
+        reports[reportIndex].resolvedAt = new Date();
+      }
+
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(reports));
+      return true;
+    } catch (error) {
+      console.error('Error updating report status:', error);
+      return false;
+    }
+  }
+
+  incrementViews(reportId: string): boolean {
+    try {
+      const reports = this.getAllReports();
+      const reportIndex = reports.findIndex(report => report.id === reportId);
+      
+      if (reportIndex === -1) return false;
+
+      reports[reportIndex].views += 1;
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(reports));
+      return true;
+    } catch (error) {
+      console.error('Error incrementing views:', error);
+      return false;
+    }
+  }
+
+  addHelpfulVote(reportId: string): boolean {
+    try {
+      const reports = this.getAllReports();
+      const reportIndex = reports.findIndex(report => report.id === reportId);
+      
+      if (reportIndex === -1) return false;
+
+      reports[reportIndex].helpfulVotes += 1;
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(reports));
+      return true;
+    } catch (error) {
+      console.error('Error adding helpful vote:', error);
+      return false;
+    }
+  }
+
+  deleteReport(reportId: string): boolean {
+    try {
+      const reports = this.getAllReports();
+      const filteredReports = reports.filter(report => report.id !== reportId);
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(filteredReports));
+      return true;
+    } catch (error) {
+      console.error('Error deleting report:', error);
+      return false;
+    }
+  }
+
+  // Statistics
+  getReportStats(): {
+    total: number;
+    byCategory: Record<string, number>;
+    bySeverity: Record<string, number>;
+    byStatus: Record<string, number>;
+    recentCount: number;
+  } {
+    try {
+      const reports = this.getAllReports();
+      const now = new Date();
+      const dayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+      const stats = {
+        total: reports.length,
+        byCategory: {} as Record<string, number>,
+        bySeverity: {} as Record<string, number>,
+        byStatus: {} as Record<string, number>,
+        recentCount: reports.filter(r => r.timestamp >= dayAgo).length
+      };
+
+      reports.forEach(report => {
+        // Count by category
+        stats.byCategory[report.analysis.category] = 
+          (stats.byCategory[report.analysis.category] || 0) + 1;
+
+        // Count by severity
+        stats.bySeverity[report.analysis.severity] = 
+          (stats.bySeverity[report.analysis.severity] || 0) + 1;
+
+        // Count by status
+        stats.byStatus[report.status] = 
+          (stats.byStatus[report.status] || 0) + 1;
+      });
+
+      return stats;
+    } catch (error) {
+      console.error('Error getting report stats:', error);
+      return {
+        total: 0,
+        byCategory: {},
+        bySeverity: {},
+        byStatus: {},
+        recentCount: 0
+      };
+    }
+  }
+
+  // Initialize with sample data if empty
+  initializeSampleData(): void {
+    try {
+      const existingReports = this.getAllReports();
+      if (existingReports.length > 0) return;
+
+      const sampleReports: Omit<UserReport, 'id' | 'timestamp' | 'views' | 'helpfulVotes' | 'status'>[] = [
+        {
+          userId: 'sample_user_1',
+          userName: 'Priya Sharma',
+          userEmail: 'priya@example.com',
+          location: { lat: 12.9716, lng: 77.5946, address: 'MG Road, Bengaluru' },
+          media: {
+            url: '/placeholder.jpg',
+            type: 'image',
+            fileName: 'traffic_jam.jpg',
+            size: 1024000
+          },
+          analysis: {
+            category: 'traffic',
+            severity: 'high',
+            description: 'Heavy traffic congestion causing significant delays during peak hours',
+            tags: ['congestion', 'peak-hour', 'vehicles', 'delay'],
+            confidence: 92,
+            suggestedActions: ['Use alternative routes', 'Contact traffic authorities'],
+            landmarks: ['MG Road Metro Station', 'Trinity Circle'],
+            aiTitle: 'Major Traffic Congestion on MG Road'
+          },
+          userComments: 'Traffic has been like this for the past 30 minutes. Alternative route via Richmond Road is also congested.'
+        },
+        {
+          userId: 'sample_user_2',
+          userName: 'Rajesh Kumar',
+          userEmail: 'rajesh@example.com',
+          location: { lat: 12.9698, lng: 77.6048, address: 'Koramangala, Bengaluru' },
+          media: {
+            url: '/placeholder.jpg',
+            type: 'image',
+            fileName: 'waterlogging.jpg',
+            size: 856000
+          },
+          analysis: {
+            category: 'infrastructure',
+            severity: 'medium',
+            description: 'Water logging on main road due to poor drainage system',
+            tags: ['waterlogging', 'drainage', 'rain', 'infrastructure'],
+            confidence: 88,
+            suggestedActions: ['Report to BBMP', 'Avoid the area', 'Use elevated walkways'],
+            landmarks: ['Forum Mall', 'Koramangala Bus Stop'],
+            aiTitle: 'Waterlogging Issue Near Forum Mall'
+          },
+          userComments: 'This happens every time it rains. The drainage system needs urgent attention.'
+        }
+      ];
+
+      sampleReports.forEach(reportData => {
+        this.saveReport(reportData);
+      });
+
+      console.log('Sample data initialized');
+    } catch (error) {
+      console.error('Error initializing sample data:', error);
+    }
+  }
+
+  // Clear all data (for testing)
+  clearAllData(): void {
+    try {
+      localStorage.removeItem(this.STORAGE_KEY);
+      localStorage.removeItem(this.USER_KEY);
+      console.log('All data cleared');
+    } catch (error) {
+      console.error('Error clearing data:', error);
+    }
+  }
+}
+
+export const reportStorage = new ReportStorageService();
+```
+
+## File: lib/gemini-service.ts
+
+```ts
+// lib/gemini-service.ts (Enhanced version - keep all existing interfaces)
+
+export interface MediaAnalysis {
+  category: string
+  severity: "low" | "medium" | "high"
+  description: string
+  tags: string[]
+  confidence: number
+  suggestedActions: string[]
+  location?: {
+    type: string
+    landmarks: string[]
+  }
+  // Enhanced fields (optional for backward compatibility)
+  urgency?: {
+    level: number // 1-10
+    requiresImmediateAction: boolean
+    estimatedResolutionTime: string
+  }
+  publicSafety?: {
+    riskLevel: 'none' | 'low' | 'moderate' | 'high' | 'severe'
+    affectedRadius: number // in meters
+    vulnerableGroups: string[]
+  }
+  economicImpact?: {
+    estimatedCost: string
+    affectedBusinesses: boolean
+    trafficDisruption: boolean
+  }
+  aiTitle?: string
+}
+
+export interface IncidentReport {
+  id: string
+  title: string
+  description: string
+  category: string
+  severity: "low" | "medium" | "high"
+  location: {
+    lat: number
+    lng: number
+    address: string
+  }
+  media: {
+    url: string
+    type: "image" | "video"
+    analysis: MediaAnalysis
+  }
+  timestamp: Date
+  status: "pending" | "verified" | "resolved"
+  reporter: {
+    id: string
+    name: string
+  }
+  // Enhanced fields (optional)
+  views?: number
+  helpfulVotes?: number
+  userComments?: string
+}
+
+class GeminiService {
+  private apiKey: string
+  private baseUrl = "https://generativelanguage.googleapis.com/v1beta"
+
+  constructor() {
+    this.apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || ""
+    if (!this.apiKey) {
+      console.warn("Gemini API key not configured. Using enhanced mock analysis.")
+    }
+  }
+
+  async analyzeMedia(
+    file: File, 
+    location?: { lat: number; lng: number },
+    options?: {
+      enhanced?: boolean // Enable enhanced analysis features
+      userContext?: { previousReports: number; trustScore: number }
+    }
+  ): Promise<MediaAnalysis> {
+    if (!this.apiKey) {
+      return this.getEnhancedMockAnalysis(file.name, location, options?.enhanced)
+    }
+
+    try {
+      // Convert file to base64
+      const base64Data = await this.fileToBase64(file)
+      const mimeType = file.type
+
+      const prompt = this.createEnhancedPrompt(file.type, location, options)
+
+      const response = await fetch(`${this.baseUrl}/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: prompt },
+                {
+                  inline_data: {
+                    mime_type: mimeType,
+                    data: base64Data,
+                  },
+                },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.1,
+            topK: 32,
+            topP: 1,
+            maxOutputTokens: options?.enhanced ? 2048 : 1024,
+          },
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`Gemini API error: ${response.status}`)
+      }
+
+      const data = await response.json()
+      const analysisText = data.candidates[0].content.parts[0].text
+
+      // Parse JSON response
+      const jsonMatch = analysisText.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        const analysis = JSON.parse(jsonMatch[0])
+        return {
+          ...analysis,
+          confidence: Math.min(100, Math.max(0, analysis.confidence || 85)),
+        }
+      }
+
+      throw new Error("Invalid response format from Gemini")
+    } catch (error) {
+      console.error("Gemini analysis error:", error)
+      return this.getEnhancedMockAnalysis(file.name, location, options?.enhanced)
+    }
+  }
+
+  private createEnhancedPrompt(
+    fileType: string,
+    location?: { lat: number; lng: number },
+    options?: {
+      enhanced?: boolean
+      userContext?: { previousReports: number; trustScore: number }
+    }
+  ): string {
+    const mediaType = fileType.startsWith("image") ? "image" : "video"
+    const isEnhanced = options?.enhanced || false
+
+    let basePrompt = `
+      Analyze this ${mediaType} for city incident reporting:
+      
+      1. Categorize the incident (traffic, infrastructure, weather, event, emergency, other)
+      2. Assess severity (low, medium, high)
+      3. Provide a clear description of what's happening
+      4. Suggest relevant tags
+      5. Recommend actions that should be taken
+      6. Identify any visible landmarks or location indicators
+      
+      ${location ? `Location context: Latitude ${location.lat}, Longitude ${location.lng}` : ""}
+      ${options?.userContext ? `User context: ${options.userContext.previousReports} previous reports, trust score: ${options.userContext.trustScore}/10` : ""}
+    `
+
+    if (isEnhanced) {
+      basePrompt += `
+      
+      ENHANCED ANALYSIS (provide additional fields):
+      7. Assess urgency level (1-10) and if immediate action is required
+      8. Evaluate public safety risk level and affected radius
+      9. Estimate economic impact and affected areas
+      10. Generate a descriptive title for the incident
+      `
+    }
+
+    const responseFormat = isEnhanced ? `
+      {
+        "category": "string",
+        "severity": "low|medium|high",
+        "description": "string",
+        "tags": ["string"],
+        "confidence": number (0-100),
+        "suggestedActions": ["string"],
+        "location": {
+          "type": "string",
+          "landmarks": ["string"]
+        },
+        "urgency": {
+          "level": number (1-10),
+          "requiresImmediateAction": boolean,
+          "estimatedResolutionTime": "string"
+        },
+        "publicSafety": {
+          "riskLevel": "none|low|moderate|high|severe",
+          "affectedRadius": number,
+          "vulnerableGroups": ["string"]
+        },
+        "economicImpact": {
+          "estimatedCost": "string",
+          "affectedBusinesses": boolean,
+          "trafficDisruption": boolean
+        },
+        "aiTitle": "string"
+      }
+    ` : `
+      {
+        "category": "string",
+        "severity": "low|medium|high",
+        "description": "string",
+        "tags": ["string"],
+        "confidence": number (0-100),
+        "suggestedActions": ["string"],
+        "location": {
+          "type": "string",
+          "landmarks": ["string"]
+        }
+      }
+    `
+
+    return basePrompt + `\n\nRespond in JSON format with the following structure:${responseFormat}`
+  }
+
+  private async fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        const base64 = (reader.result as string).split(",")[1]
+        resolve(base64)
+      }
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+  }
+
+  private getMockAnalysis(filename: string): MediaAnalysis {
+    // Original mock analysis for backward compatibility
+    const mockAnalyses = [
+      {
+        category: "traffic",
+        severity: "high" as const,
+        description: "Heavy traffic congestion detected with multiple vehicles at standstill",
+        tags: ["traffic", "congestion", "road", "vehicles"],
+        confidence: 87,
+        suggestedActions: ["Alert traffic authorities", "Suggest alternate routes", "Monitor situation"],
+        location: {
+          type: "road intersection",
+          landmarks: ["traffic signal", "commercial buildings"],
+        },
+      },
+      {
+        category: "infrastructure",
+        severity: "medium" as const,
+        description: "Pothole or road damage visible affecting vehicle movement",
+        tags: ["pothole", "road damage", "infrastructure", "maintenance"],
+        confidence: 92,
+        suggestedActions: ["Report to municipal corporation", "Mark area for repair", "Issue public advisory"],
+        location: {
+          type: "road surface",
+          landmarks: ["street signs", "nearby buildings"],
+        },
+      },
+      {
+        category: "weather",
+        severity: "high" as const,
+        description: "Waterlogging or flooding observed on street with water accumulation",
+        tags: ["flooding", "waterlogging", "rain", "drainage"],
+        confidence: 94,
+        suggestedActions: ["Issue flood warning", "Deploy drainage teams", "Restrict traffic"],
+        location: {
+          type: "street level",
+          landmarks: ["drainage systems", "road markings"],
+        },
+      },
+    ]
+
+    return mockAnalyses[Math.floor(Math.random() * mockAnalyses.length)]
+  }
+
+  private getEnhancedMockAnalysis(
+    filename: string, 
+    location?: { lat: number; lng: number },
+    enhanced: boolean = false
+  ): MediaAnalysis {
+    const baseAnalysis = this.getMockAnalysis(filename)
+    
+    if (!enhanced) {
+      return baseAnalysis
+    }
+
+    // Add enhanced fields for better functionality
+    const enhancedAnalysis: MediaAnalysis = {
+      ...baseAnalysis,
+      urgency: {
+        level: baseAnalysis.severity === 'high' ? 8 : baseAnalysis.severity === 'medium' ? 5 : 3,
+        requiresImmediateAction: baseAnalysis.severity === 'high',
+        estimatedResolutionTime: baseAnalysis.severity === 'high' ? '1-2 hours' : baseAnalysis.severity === 'medium' ? '2-6 hours' : '1-3 days'
+      },
+      publicSafety: {
+        riskLevel: baseAnalysis.severity === 'high' ? 'high' : baseAnalysis.severity === 'medium' ? 'moderate' : 'low',
+        affectedRadius: baseAnalysis.category === 'traffic' ? 500 : baseAnalysis.category === 'infrastructure' ? 100 : 200,
+        vulnerableGroups: baseAnalysis.category === 'traffic' ? ['pedestrians', 'cyclists'] : ['general public']
+      },
+      economicImpact: {
+        estimatedCost: baseAnalysis.severity === 'high' ? 'High - ₹50K-2L' : baseAnalysis.severity === 'medium' ? 'Medium - ₹10K-50K' : 'Low - Under ₹10K',
+        affectedBusinesses: baseAnalysis.category === 'traffic' || baseAnalysis.category === 'infrastructure',
+        trafficDisruption: baseAnalysis.category === 'traffic' || baseAnalysis.category === 'weather'
+      },
+      aiTitle: this.generateAITitle(baseAnalysis)
+    }
+
+    return enhancedAnalysis
+  }
+
+  private generateAITitle(analysis: MediaAnalysis): string {
+    const categoryTitles = {
+      traffic: "Traffic Congestion Detected",
+      infrastructure: "Infrastructure Damage Reported",
+      weather: "Weather-Related Incident",
+      event: "Public Event in Progress",
+      emergency: "Emergency Situation",
+      other: "Community Incident Report",
+    }
+
+    const severityPrefixes = {
+      high: "🚨 URGENT:",
+      medium: "⚠️ ALERT:",
+      low: "📍 INFO:",
+    }
+
+    const baseTitle = categoryTitles[analysis.category as keyof typeof categoryTitles] || "Incident Report"
+    const prefix = severityPrefixes[analysis.severity]
+    
+    return `${prefix} ${baseTitle}`
+  }
+
+  async generateIncidentTitle(analysis: MediaAnalysis): Promise<string> {
+    // Enhanced title generation
+    if (analysis.aiTitle) {
+      return analysis.aiTitle
+    }
+
+    const categoryTitles = {
+      traffic: "Traffic Incident",
+      infrastructure: "Infrastructure Issue",
+      weather: "Weather-Related Event",
+      event: "Public Event",
+      emergency: "Emergency Situation",
+      other: "Incident Report",
+    }
+
+    const baseTitle = categoryTitles[analysis.category as keyof typeof categoryTitles] || "Incident Report"
+
+    // Add severity indicator
+    const severityPrefix = {
+      high: "🚨 Urgent:",
+      medium: "⚠️ Alert:",
+      low: "ℹ️ Notice:",
+    }
+
+    return `${severityPrefix[analysis.severity]} ${baseTitle}`
+  }
+
+  // New helper methods for enhanced functionality
+  async analyzeMediaEnhanced(
+    file: File, 
+    location?: { lat: number; lng: number },
+    userContext?: { previousReports: number; trustScore: number }
+  ): Promise<MediaAnalysis> {
+    return this.analyzeMedia(file, location, { 
+      enhanced: true, 
+      userContext 
+    })
+  }
+
+  getCategoryIcon(category: string): string {
+    const icons = {
+      traffic: "🚗",
+      infrastructure: "🏗️",
+      weather: "🌧️",
+      emergency: "🚨",
+      event: "🎉",
+      other: "📍"
+    }
+    return icons[category as keyof typeof icons] || "📍"
+  }
+
+  getSeverityColor(severity: string): string {
+    const colors = {
+      low: "#10B981",     // green
+      medium: "#F59E0B",  // yellow
+      high: "#EF4444"     // red
+    }
+    return colors[severity as keyof typeof colors] || "#6B7280"
+  }
+
+  formatTimeAgo(timestamp: Date): string {
+    const now = new Date()
+    const diff = now.getTime() - timestamp.getTime()
+    const minutes = Math.floor(diff / 60000)
+    
+    if (minutes < 1) return 'Just now'
+    if (minutes < 60) return `${minutes}m ago`
+    
+    const hours = Math.floor(minutes / 60)
+    if (hours < 24) return `${hours}h ago`
+    
+    const days = Math.floor(hours / 24)
+    return `${days}d ago`
+  }
+
+  // Validation helpers
+  validateFile(file: File): { isValid: boolean; error?: string } {
+    const validTypes = [
+      'image/jpeg', 'image/png', 'image/webp', 
+      'video/mp4', 'video/webm', 'video/quicktime'
+    ]
+    
+    if (!validTypes.includes(file.type)) {
+      return {
+        isValid: false,
+        error: 'Invalid file type. Please upload JPEG, PNG, WebP images or MP4, WebM, MOV videos.'
+      }
+    }
+    
+    if (file.size > 100 * 1024 * 1024) { // 100MB
+      return {
+        isValid: false,
+        error: 'File size too large. Maximum size is 100MB.'
+      }
+    }
+    
+    return { isValid: true }
+  }
+
+  validateLocation(location: { lat: number; lng: number }): { isValid: boolean; error?: string } {
+    if (isNaN(location.lat) || isNaN(location.lng)) {
+      return {
+        isValid: false,
+        error: 'Invalid location coordinates'
+      }
+    }
+    
+    if (location.lat < -90 || location.lat > 90 || location.lng < -180 || location.lng > 180) {
+      return {
+        isValid: false,
+        error: 'Location coordinates out of valid range'
+      }
+    }
+    
+    return { isValid: true }
+  }
+}
+
+export const geminiService = new GeminiService()
+```
+
+## File: lib/ai-insights-service.ts
+
+```ts
+export interface EventStream {
+  id: string
+  type: "power_outage" | "traffic_incident" | "weather_event" | "infrastructure_issue" | "safety_incident"
+  location: {
+    lat: number
+    lng: number
+    area: string
+    district: string
+  }
+  timestamp: Date
+  severity: "low" | "medium" | "high"
+  description: string
+  source: "citizen_report" | "sensor_data" | "api_feed" | "social_media"
+  metadata: Record<string, any>
+}
+
+export interface PredictiveInsight {
+  id: string
+  type: "infrastructure_pattern" | "traffic_prediction" | "safety_alert" | "community_trend"
+  title: string
+  description: string
+  confidence: number
+  severity: "low" | "medium" | "high"
+  timeframe: string
+  affectedArea: string
+  eventCount: number
+  pattern: string
+  recommendation: string
+  sources: string[]
+  aiReasoning: string
+  relatedEvents: string[]
+}
+
+export interface AreaSummary {
+  area: string
+  summary: string
+  alerts: number
+  trend: "positive" | "stable" | "warning" | "concerning"
+  lastUpdated: string
+  keyMetrics: {
+    incidentCount: number
+    resolutionRate: number
+    communityEngagement: number
+  }
+}
+
+class AIInsightsService {
+  private eventBuffer: EventStream[] = []
+  private patternCache = new Map<string, any>()
+
+  // Simulate real-time event stream processing
+  async analyzeEventStreams(events: EventStream[]): Promise<PredictiveInsight[]> {
+    this.eventBuffer = [...this.eventBuffer, ...events].slice(-1000) // Keep last 1000 events
+
+    const insights: PredictiveInsight[] = []
+
+    // Pattern 1: Infrastructure clustering analysis
+    const infrastructureInsights = await this.detectInfrastructurePatterns()
+    insights.push(...infrastructureInsights)
+
+    // Pattern 2: Traffic prediction based on events
+    const trafficInsights = await this.predictTrafficPatterns()
+    insights.push(...trafficInsights)
+
+    // Pattern 3: Safety risk assessment
+    const safetyInsights = await this.assessSafetyRisks()
+    insights.push(...safetyInsights)
+
+    // Pattern 4: Community engagement trends
+    const communityInsights = await this.analyzeCommunityTrends()
+    insights.push(...communityInsights)
+
+    return insights.sort((a, b) => b.confidence - a.confidence)
+  }
+
+  private async detectInfrastructurePatterns(): Promise<PredictiveInsight[]> {
+    const insights: PredictiveInsight[] = []
+
+    // Group power outage events by area and time
+    const powerOutages = this.eventBuffer.filter((e) => e.type === "power_outage")
+    const areaGroups = this.groupEventsByArea(powerOutages, 2000) // 2km radius
+
+    for (const [area, events] of areaGroups.entries()) {
+      if (events.length >= 3) {
+        // Threshold for pattern detection
+        const timeSpan = this.getTimeSpan(events)
+
+        if (timeSpan <= 4 * 60 * 60 * 1000) {
+          // Within 4 hours
+          const confidence = Math.min(95, 60 + events.length * 8)
+
+          insights.push({
+            id: `infra_${area}_${Date.now()}`,
+            type: "infrastructure_pattern",
+            title: "Potential Grid Issue Detected",
+            description: `Multiple power cut reports in ${area} (${events.length} reports in ${Math.round(timeSpan / (60 * 60 * 1000))} hours) suggest a potential transformer failure.`,
+            confidence,
+            severity: events.length > 5 ? "high" : "medium",
+            timeframe: "Next 2-4 hours",
+            affectedArea: area,
+            eventCount: events.length,
+            pattern: "Clustered power outages",
+            recommendation: this.generateInfrastructureRecommendation(events),
+            sources: ["Citizen reports", "BESCOM API", "Historical patterns"],
+            aiReasoning: `Pattern analysis shows ${confidence}% correlation with previous transformer failures in similar conditions.`,
+            relatedEvents: events.map((e) => e.id),
+          })
+        }
+      }
+    }
+
+    return insights
+  }
+
+  private async predictTrafficPatterns(): Promise<PredictiveInsight[]> {
+    const insights: PredictiveInsight[] = []
+
+    // Analyze upcoming events and their traffic impact
+    const upcomingEvents = await this.getUpcomingEvents()
+
+    for (const event of upcomingEvents) {
+      const historicalImpact = await this.getHistoricalTrafficImpact(event.type, event.location)
+
+      if (historicalImpact.confidence > 70) {
+        insights.push({
+          id: `traffic_${event.id}_${Date.now()}`,
+          type: "traffic_prediction",
+          title: "Unusual Traffic Buildup Predicted",
+          description: `${event.name} will likely cause ${historicalImpact.increase}% increase in traffic on ${event.affectedRoutes.join(", ")}.`,
+          confidence: historicalImpact.confidence,
+          severity: historicalImpact.increase > 40 ? "high" : "medium",
+          timeframe: event.timeframe,
+          affectedArea: event.affectedRoutes.join(", "),
+          eventCount: 1,
+          pattern: "Event-driven congestion",
+          recommendation: this.generateTrafficRecommendation(event, historicalImpact),
+          sources: ["Event calendar", "Historical traffic data", "Social media"],
+          aiReasoning: `Similar events historically increased travel time by ${historicalImpact.increase}% on this route.`,
+          relatedEvents: [event.id],
+        })
+      }
+    }
+
+    return insights
+  }
+
+  private async assessSafetyRisks(): Promise<PredictiveInsight[]> {
+    const insights: PredictiveInsight[] = []
+
+    // Combine weather data with infrastructure reports
+    const weatherEvents = this.eventBuffer.filter((e) => e.type === "weather_event")
+    const infrastructureIssues = this.eventBuffer.filter((e) => e.type === "infrastructure_issue")
+
+    // Look for drainage + rain combinations
+    const drainageIssues = infrastructureIssues.filter(
+      (e) => e.description.toLowerCase().includes("drain") || e.description.toLowerCase().includes("flood"),
+    )
+
+    if (weatherEvents.length > 0 && drainageIssues.length > 0) {
+      const affectedAreas = [...new Set(drainageIssues.map((e) => e.location.area))]
+
+      for (const area of affectedAreas) {
+        const areaIssues = drainageIssues.filter((e) => e.location.area === area)
+
+        insights.push({
+          id: `safety_${area}_${Date.now()}`,
+          type: "safety_alert",
+          title: "Waterlogging Risk Assessment",
+          description: `Heavy rain forecast + blocked drains in ${area} (${areaIssues.length} reports) indicate high flooding probability in low-lying areas.`,
+          confidence: 82,
+          severity: "high",
+          timeframe: "Next 6 hours",
+          affectedArea: area,
+          eventCount: areaIssues.length,
+          pattern: "Drainage system stress",
+          recommendation: this.generateSafetyRecommendation(area, areaIssues),
+          sources: ["Weather API", "Drainage reports", "Topographical data"],
+          aiReasoning: "Rainfall intensity exceeds drainage capacity in reported areas.",
+          relatedEvents: areaIssues.map((e) => e.id),
+        })
+      }
+    }
+
+    return insights
+  }
+
+  private async analyzeCommunityTrends(): Promise<PredictiveInsight[]> {
+    const insights: PredictiveInsight[] = []
+
+    // Analyze citizen reporting patterns
+    const citizenReports = this.eventBuffer.filter((e) => e.source === "citizen_report")
+    const areaReports = this.groupEventsByArea(citizenReports, 1000)
+
+    for (const [area, reports] of areaReports.entries()) {
+      const weeklyReports = reports.filter((r) => Date.now() - r.timestamp.getTime() < 7 * 24 * 60 * 60 * 1000)
+
+      if (weeklyReports.length > 15) {
+        // High engagement threshold
+        const accuracyRate = this.calculateAccuracyRate(weeklyReports)
+
+        if (accuracyRate > 80) {
+          insights.push({
+            id: `community_${area}_${Date.now()}`,
+            type: "community_trend",
+            title: "Positive Community Engagement Surge",
+            description: `Citizen reporting increased 60% in ${area} this week, with ${accuracyRate}% accuracy rate. Community-driven problem solving is accelerating.`,
+            confidence: 91,
+            severity: "low",
+            timeframe: "Ongoing trend",
+            affectedArea: area,
+            eventCount: weeklyReports.length,
+            pattern: "Increased civic participation",
+            recommendation: "Excellent community engagement. Consider expanding citizen reporter program.",
+            sources: ["Report analytics", "Resolution tracking", "Community feedback"],
+            aiReasoning: "Higher reporting correlates with 40% faster issue resolution in similar neighborhoods.",
+            relatedEvents: weeklyReports.map((r) => r.id),
+          })
+        }
+      }
+    }
+
+    return insights
+  }
+
+  // Generate AI-powered area summaries
+  async generateAreaSummaries(areas: string[]): Promise<AreaSummary[]> {
+    const summaries: AreaSummary[] = []
+
+    for (const area of areas) {
+      const areaEvents = this.eventBuffer.filter((e) => e.location.area === area)
+      const recentEvents = areaEvents.filter((e) => Date.now() - e.timestamp.getTime() < 24 * 60 * 60 * 1000)
+
+      const summary = await this.generateAreaSummaryText(area, recentEvents)
+      const trend = this.calculateAreaTrend(recentEvents)
+      const alerts = recentEvents.filter((e) => e.severity === "high").length
+
+      summaries.push({
+        area,
+        summary,
+        alerts,
+        trend,
+        lastUpdated: this.getRelativeTime(Math.max(...recentEvents.map((e) => e.timestamp.getTime()))),
+        keyMetrics: {
+          incidentCount: recentEvents.length,
+          resolutionRate: this.calculateResolutionRate(recentEvents),
+          communityEngagement: this.calculateEngagementScore(recentEvents),
+        },
+      })
+    }
+
+    return summaries
+  }
+
+  // Helper methods
+  private groupEventsByArea(events: EventStream[], radiusMeters: number): Map<string, EventStream[]> {
+    const groups = new Map<string, EventStream[]>()
+
+    for (const event of events) {
+      let assigned = false
+
+      for (const [area, groupEvents] of groups.entries()) {
+        const representative = groupEvents[0]
+        const distance = this.calculateDistance(
+          event.location.lat,
+          event.location.lng,
+          representative.location.lat,
+          representative.location.lng,
+        )
+
+        if (distance <= radiusMeters) {
+          groupEvents.push(event)
+          assigned = true
+          break
+        }
+      }
+
+      if (!assigned) {
+        groups.set(event.location.area, [event])
+      }
+    }
+
+    return groups
+  }
+
+  private calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+    const R = 6371e3 // Earth's radius in meters
+    const φ1 = (lat1 * Math.PI) / 180
+    const φ2 = (lat2 * Math.PI) / 180
+    const Δφ = ((lat2 - lat1) * Math.PI) / 180
+    const Δλ = ((lng2 - lng1) * Math.PI) / 180
+
+    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2)
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+
+    return R * c
+  }
+
+  private getTimeSpan(events: EventStream[]): number {
+    const timestamps = events.map((e) => e.timestamp.getTime())
+    return Math.max(...timestamps) - Math.min(...timestamps)
+  }
+
+  private async getUpcomingEvents() {
+    // Mock upcoming events - in real app, this would come from event APIs
+    return [
+      {
+        id: "concert_palace_grounds",
+        name: "Concert at Palace Grounds",
+        type: "entertainment",
+        location: { lat: 13.0067, lng: 77.5667 },
+        timeframe: "Today 8:00-11:00 PM",
+        affectedRoutes: ["Outer Ring Road", "Hebbal-Marathahalli"],
+      },
+    ]
+  }
+
+  private async getHistoricalTrafficImpact(eventType: string, location: any) {
+    // Mock historical analysis
+    return {
+      confidence: 87,
+      increase: 40,
+    }
+  }
+
+  private generateInfrastructureRecommendation(events: EventStream[]): string {
+    return "BESCOM has been notified. Backup power recommended for critical operations."
+  }
+
+  private generateTrafficRecommendation(event: any, impact: any): string {
+    return "Use alternative routes. Metro recommended for event area."
+  }
+
+  private generateSafetyRecommendation(area: string, issues: EventStream[]): string {
+    return `Avoid low-lying areas in ${area}. BBMP drainage teams deployed.`
+  }
+
+  private calculateAccuracyRate(reports: EventStream[]): number {
+    // Mock accuracy calculation
+    return 85
+  }
+
+  private async generateAreaSummaryText(area: string, events: EventStream[]): Promise<string> {
+    // AI-generated summary based on events
+    const powerIssues = events.filter((e) => e.type === "power_outage").length
+    const trafficIssues = events.filter((e) => e.type === "traffic_incident").length
+
+    if (powerIssues > 3) {
+      return `Infrastructure stress detected. Power grid showing instability with ${powerIssues} outage reports. Traffic normal. Air quality moderate.`
+    } else if (trafficIssues > 2) {
+      return `Traffic congestion above normal. ${trafficIssues} incidents reported. Infrastructure stable.`
+    } else {
+      return `Area operating normally. Minor incidents reported. Community engagement good.`
+    }
+  }
+
+  private calculateAreaTrend(events: EventStream[]): "positive" | "stable" | "warning" | "concerning" {
+    const highSeverityEvents = events.filter((e) => e.severity === "high").length
+
+    if (highSeverityEvents > 2) return "concerning"
+    if (highSeverityEvents > 0) return "warning"
+    if (events.length > 10) return "positive" // High engagement
+    return "stable"
+  }
+
+  private calculateResolutionRate(events: EventStream[]): number {
+    // Mock resolution rate
+    return 78
+  }
+
+  private calculateEngagementScore(events: EventStream[]): number {
+    const citizenReports = events.filter((e) => e.source === "citizen_report").length
+    return Math.min(100, citizenReports * 5)
+  }
+
+  private getRelativeTime(timestamp: number): string {
+    const diff = Date.now() - timestamp
+    const minutes = Math.floor(diff / (60 * 1000))
+
+    if (minutes < 60) return `${minutes} minutes ago`
+    const hours = Math.floor(minutes / 60)
+    return `${hours} hours ago`
+  }
+}
+
+export const aiInsightsService = new AIInsightsService()
+
+```
+
+## File: contexts/auth-context.tsx
+
+```tsx
+"use client"
+
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import {
+  onAuthStateChanged,
+  type User,
+  GoogleAuthProvider,
+  signOut as firebaseSignOut,
+} from "firebase/auth"
+import { 
+  isFirebaseConfigValid, 
+  waitForAuth, 
+  isFirebaseReady, 
+  forceInitializeFirebase,
+  signInWithGooglePopup,
+  checkRedirectResult
+} from "@/lib/firebase"
+import { OAUTH_CONFIG } from "@/lib/oauth-config"
+import type { AuthState, AuthPromptConfig } from "@/types/auth"
+import { AuthPrompt } from "@/components/auth/auth-prompt"
+import { useRouter } from "next/navigation"
+import { useToast } from "@/components/ui/use-toast"
+import { Button } from "@/components/ui/button"
+
+interface AuthContextType {
+  authState: AuthState
+  user: User | null
+  requireAuth: (action: string, redirectUrl?: string) => boolean
+  signIn: () => Promise<void>
+  signOut: () => Promise<void>
+  isConfigValid: boolean
+  isLoading: boolean
+  retryAuth: () => Promise<void>
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const router = useRouter()
+  const { toast } = useToast()
+  const [authState, setAuthState] = useState<AuthState>({
+    mode: "anonymous",
+    permissions: [
+      "read_public",
+      "view_map",
+      "view_incidents",
+      "submit_reports",
+      "manage_subscriptions",
+      "view_insights",
+      "view_financial_pulse",
+      "view_alerts",
+    ],
+  })
+  const [user, setUser] = useState<User | null>(null)
+  const [promptConfig, setPromptConfig] = useState<AuthPromptConfig | null>(null)
+  const [isPromptOpen, setIsPromptOpen] = useState(false)
+  const [postLoginRedirect, setPostLoginRedirect] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [authInitialized, setAuthInitialized] = useState(false)
+  const [retryCount, setRetryCount] = useState(0)
+
+  const isConfigValid = isFirebaseConfigValid()
+
+  // Enhanced auth initialization with graceful fallback
+  useEffect(() => {
+    if (!isConfigValid) {
+      console.log("🌐 Running in universal access mode - all features available")
+      setAuthState({
+        mode: "anonymous",
+        permissions: [
+          "read_public",
+          "view_map",
+          "view_incidents",
+          "submit_reports",
+          "manage_subscriptions",
+          "view_insights",
+          "view_financial_pulse",
+          "view_alerts",
+        ],
+      })
+      setAuthInitialized(true)
+      return
+    }
+
+    const initializeAuth = async (attempt = 1) => {
+      try {
+        console.log(`🔐 Auth initialization attempt ${attempt}`)
+
+        // Try to get auth with shorter timeout
+        const authInstance = await Promise.race([
+          waitForAuth(),
+          new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Auth timeout")), 1500)),
+        ])
+
+        console.log("✅ Firebase Auth ready, setting up listener")
+
+        // Set up auth state listener
+        const unsubscribe = onAuthStateChanged(authInstance, (user) => {
+          console.log("🔄 Auth state change:", user ? `User: ${user.displayName}` : "Guest user")
+
+          if (user) {
+            setUser(user)
+            setAuthState({
+              mode: "authenticated",
+              user: {
+                uid: user.uid,
+                email: user.email || undefined,
+                displayName: user.displayName || undefined,
+                photoURL: user.photoURL || undefined,
+              },
+              permissions: [
+                "read_public",
+                "view_map",
+                "view_incidents",
+                "submit_reports",
+                "manage_subscriptions",
+                "view_insights",
+                "view_financial_pulse",
+                "view_alerts",
+              ],
+            })
+
+            if (authInitialized && !user.isAnonymous) {
+              toast({
+                title: "🎉 Welcome back!",
+                description: `Signed in as ${user.displayName || user.email}`,
+                duration: 4000,
+              })
+            }
+
+            if (postLoginRedirect) {
+              router.push(postLoginRedirect)
+              setPostLoginRedirect(null)
+            }
+          } else {
+            setUser(null)
+            // All users get full access to all features
+            setAuthState({
+              mode: "anonymous",
+              permissions: [
+                "read_public",
+                "view_map",
+                "view_incidents",
+                "submit_reports",
+                "manage_subscriptions",
+                "view_insights",
+                "view_financial_pulse",
+                "view_alerts",
+              ],
+            })
+          }
+
+          setAuthInitialized(true)
+        })
+
+        return unsubscribe
+      } catch (error) {
+        console.error(`❌ Auth initialization attempt ${attempt} failed:`, error)
+
+        // Retry up to 3 times with exponential backoff
+        if (attempt < 3) {
+          const delay = Math.pow(2, attempt) * 1000 // 2s, 4s, 8s
+          console.log(`⏳ Retrying auth initialization in ${delay}ms...`)
+
+          setTimeout(() => {
+            setRetryCount(attempt)
+            initializeAuth(attempt + 1)
+          }, delay)
+          return () => {}
+        }
+
+        // After 3 attempts, enable full access mode
+        console.log("✅ Enabling full access mode - all features available")
+
+        setAuthState({
+          mode: "anonymous",
+          permissions: [
+            "read_public",
+            "view_map",
+            "view_incidents",
+            "submit_reports",
+            "manage_subscriptions",
+            "view_insights",
+            "view_financial_pulse",
+            "view_alerts",
+          ],
+        })
+        setAuthInitialized(true)
+
+        return () => {}
+      }
+    }
+
+    const unsubscribePromise = initializeAuth()
+
+    return () => {
+      unsubscribePromise.then((unsubscribe) => unsubscribe())
+    }
+  }, [router, postLoginRedirect, isConfigValid, toast, authInitialized, retryCount])
+
+  // Check for redirect result when component mounts
+  useEffect(() => {
+    const checkForRedirectResult = async () => {
+      if (!isConfigValid) return;
+      
+      try {
+        const result = await checkRedirectResult();
+        if (result) {
+          console.log("✅ Redirect sign-in completed successfully");
+          
+          toast({
+            title: "🎉 Welcome Back!",
+            description: `Successfully signed in as ${result.user.displayName || result.user.email}`,
+            duration: 5000,
+          });
+
+          // Handle post-login redirect
+          if (postLoginRedirect) {
+            router.push(postLoginRedirect);
+            setPostLoginRedirect(null);
+          }
+        }
+      } catch (error) {
+        console.error("❌ Redirect result error:", error);
+      }
+    };
+
+    checkForRedirectResult();
+  }, [isConfigValid, postLoginRedirect, router, toast]);
+
+  // Enhanced sign in with OAuth priority and better error handling
+  const signIn = async () => {
+    setIsLoading(true);
+    
+    try {
+      console.log("🚀 Starting Google authentication...");
+      
+      // Prioritize OAuth - use the enhanced popup/redirect function
+      const result = await signInWithGooglePopup();
+      
+      console.log("✅ Google authentication successful:", {
+        user: result.user.displayName,
+        email: result.user.email,
+        uid: result.user.uid,
+      });
+
+      // Close any open prompts
+      setIsPromptOpen(false);
+
+      // Show success message
+      toast({
+        title: "🎉 Sign In Successful!",
+        description: `Welcome, ${result.user.displayName || result.user.email}!`,
+        duration: 4000,
+      });
+
+      // If there was a post-login redirect, handle it
+      if (postLoginRedirect) {
+        router.push(postLoginRedirect);
+        setPostLoginRedirect(null);
+      }
+      
+    } catch (error: any) {
+      console.error("❌ Sign in error:", error);
+
+      let errorMessage = "Authentication failed. Please try again.";
+      let shouldRetry = false;
+      let isRedirectInitiated = false;
+      let actionButton = null;
+
+      // Handle specific error cases with priority on user experience
+      switch (error.code) {
+        case "auth/popup-closed-by-user":
+          errorMessage = "Sign in was cancelled. You can try again anytime.";
+          shouldRetry = true;
+          break;
+          
+        case "auth/popup-blocked":
+          errorMessage = "Popup was blocked by your browser. Please allow popups and try again.";
+          shouldRetry = true;
+          actionButton = (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => {
+                toast({
+                  title: "Enable Popups",
+                  description: "Look for the popup blocked icon in your address bar and click 'Always allow'",
+                  duration: 8000,
+                });
+              }}
+            >
+              Help
+            </Button>
+          );
+          break;
+          
+        case "auth/cancelled-popup-request":
+          errorMessage = "Multiple sign-in attempts detected. Please wait a moment.";
+          shouldRetry = true;
+          break;
+          
+        case "auth/network-request-failed":
+          errorMessage = "Network error. Check your internet connection.";
+          shouldRetry = true;
+          break;
+          
+        case "auth/unauthorized-domain":
+          errorMessage = "This domain is not authorized for Google sign-in.";
+          break;
+          
+        case "auth/operation-not-allowed":
+          errorMessage = "Google sign-in is temporarily disabled. Please try again later.";
+          break;
+          
+        case "auth/too-many-requests":
+          errorMessage = "Too many sign-in attempts. Please wait a few minutes.";
+          break;
+          
+        default:
+          if (error.message?.includes("timeout")) {
+            errorMessage = "Sign in timed out. Please check your internet connection.";
+            shouldRetry = true;
+          } else if (error.message?.includes("redirect-initiated")) {
+            errorMessage = "Redirecting to Google for authentication...";
+            isRedirectInitiated = true;
+          } else if (error.message?.includes("Firebase Auth")) {
+            errorMessage = "Authentication service is loading. Please try again.";
+            shouldRetry = true;
+          }
+      }
+
+      // Don't show error toast for redirect
+      if (!isRedirectInitiated) {
+        toast({
+          title: "Authentication Failed",
+          description: errorMessage,
+          variant: "destructive",
+          duration: shouldRetry ? 8000 : 5000,
+          action: actionButton || (shouldRetry ? (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => {
+                setIsLoading(false);
+                setTimeout(signIn, 1500);
+              }}
+            >
+              Retry
+            </Button>
+          ) : undefined)
+        });
+      } else {
+        toast({
+          title: "🔄 Redirecting...",
+          description: "Please complete authentication in the popup window.",
+          duration: 3000,
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signOut = async () => {
+    if (!isFirebaseReady()) {
+      // Reset to guest state
+      setUser(null)
+      setAuthState({
+        mode: "anonymous",
+        permissions: [
+          "read_public",
+          "view_map",
+          "view_incidents",
+          "submit_reports",
+          "view_insights",
+          "view_financial_pulse",
+          "view_alerts",
+        ],
+      })
+      toast({
+        title: "👋 Signed Out",
+        description: "You can continue using all features as a guest.",
+      })
+      return
+    }
+
+    setIsLoading(true)
+
+    try {
+      const auth = await waitForAuth()
+      await firebaseSignOut(auth)
+      toast({
+        title: "👋 Signed Out",
+        description: "You can continue using all features as a guest.",
+      })
+    } catch (error) {
+      console.error("Sign out error:", error)
+      setUser(null)
+      setAuthState({
+        mode: "anonymous",
+        permissions: [
+          "read_public",
+          "view_map",
+          "view_incidents",
+          "submit_reports",
+          "view_insights",
+          "view_financial_pulse",
+          "view_alerts",
+        ],
+      })
+      toast({
+        title: "👋 Signed Out",
+        description: "You can continue using all features as a guest.",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Allow all users access to all features, but encourage sign-in for enhanced experience
+  const requireAuth = (action: string, redirectUrl?: string) => {
+    // Always allow access - no restrictions
+    if (authState.mode === "authenticated") {
+      return true;
+    }
+
+    // For premium features, optionally show sign-in prompt for enhanced experience
+    if (["view_financial_pulse", "view_insights", "view_alerts", "submit_report"].includes(action)) {
+      // Don't force sign-in, just suggest it occasionally (e.g., 20% of the time)
+      if (Math.random() < 0.2) {
+        const config = getAuthPromptConfig(action);
+        setPromptConfig({
+          ...config,
+          title: "🚀 Enhanced Experience Available",
+          message: "Sign in with Google to sync your preferences and get personalized insights.",
+          benefits: [
+            "☁️ Sync data across devices", 
+            "⚡ Personalized recommendations",
+            "📊 Advanced analytics",
+            "🔔 Custom notifications"
+          ],
+        });
+        setIsPromptOpen(true);
+        
+        if (redirectUrl) {
+          setPostLoginRedirect(redirectUrl);
+        }
+      }
+      
+      // Always return true - full access for everyone
+      return true;
+    }
+
+    return true; // Allow all actions for all users
+  };
+
+  // Retry auth initialization
+  const retryAuth = async () => {
+    if (!isConfigValid) return
+
+    setIsLoading(true)
+    try {
+      await forceInitializeFirebase()
+      toast({
+        title: "🔄 Authentication Ready",
+        description: "You can now sign in with Google for enhanced features.",
+      })
+    } catch (error) {
+      toast({
+        title: "Connection Issue",
+        description: "All features remain available. Sign-in will be available when connection improves.",
+        variant: "default",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <AuthContext.Provider
+      value={{
+        authState,
+        user,
+        requireAuth,
+        signIn,
+        signOut,
+        isConfigValid,
+        isLoading,
+        retryAuth,
+      }}
+    >
+      {children}
+      {promptConfig && (
+        <AuthPrompt
+          isOpen={isPromptOpen}
+          onClose={() => setIsPromptOpen(false)}
+          config={promptConfig}
+          onSignIn={signIn}
+          isLoading={isLoading}
+        />
+      )}
+    </AuthContext.Provider>
+  )
+}
+
+export const useAuth = () => {
+  const context = useContext(AuthContext)
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider")
+  }
+  return context
+}
+
+// Professional auth prompt configs for enhanced experience
+const getAuthPromptConfig = (action: string): AuthPromptConfig => {
+  switch (action) {
+    case "view_financial_pulse":
+      return {
+        title: "🏦 Enhanced Financial Analytics",
+        message: "Sign in for personalized financial insights and market analysis tailored to your interests.",
+        benefits: [
+          "📊 Personalized market insights", 
+          "💰 Custom investment tracking", 
+          "🔔 Smart financial alerts"
+        ],
+        action,
+      }
+    case "submit_report":
+      return {
+        title: "📝 Track Your Contributions",
+        message: "Sign in to track your community reports and see your impact over time.",
+        benefits: [
+          "📈 Track report status", 
+          "🏆 Community impact score", 
+          "🌟 Build your civic profile"
+        ],
+        action,
+      }
+    case "view_alerts":
+      return {
+        title: "🔔 Smart Notifications",
+        message: "Sign in for intelligent alerts customized to your location and interests.",
+        benefits: [
+          "🎯 Location-based alerts", 
+          "📍 Custom notification zones", 
+          "⚡ Priority updates"
+        ],
+        action,
+      }
+    case "view_insights":
+      return {
+        title: "🧠 AI-Powered Intelligence",
+        message: "Sign in to unlock personalized city insights powered by advanced analytics.",
+        benefits: [
+          "🤖 AI-driven recommendations", 
+          "📈 Historical trend analysis", 
+          "📊 Personalized dashboards"
+        ],
+        action,
+      }
+    default:
+      return {
+        title: "✨ Enhanced Experience",
+        message: "Sign in with Google to unlock personalized features and sync across devices.",
+        benefits: [
+          "🔄 Cross-device sync", 
+          "🎨 Personalized interface", 
+          "📝 Track your activity"
+        ],
+        action,
+      }
+  }
+}
+```
+
+---
+
+**Part 5 Summary:**
+- Files included: 19
+- Files skipped: 0
+- Total size: 122KB

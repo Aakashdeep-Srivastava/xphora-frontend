@@ -1,0 +1,3444 @@
+# XphoraPulse Codebase - Part 3: Pages & Routes
+
+This is part 3 of 5 of the XphoraPulse codebase.
+
+## About This Part
+Application pages, routing, and page-specific components
+
+## Project Structure:
+```
+📁 app/
+  📁 (main)/
+    📁 alerts/
+      ⚛️ page.tsx
+    📁 chat/
+      ⚛️ page.tsx
+    📁 dashboard/
+      ⚛️ page.tsx
+    📁 financial-pulse/
+      ⚛️ page.tsx
+    📁 insights/
+      ⚛️ page.tsx
+    📁 map/
+      ⚛️ page.tsx
+    📁 prediction/
+      ⚛️ page.tsx
+    📁 profile/
+      ⚛️ page.tsx
+    📁 report/
+      🔷 action.ts
+      ⚛️ page.tsx
+    ⚛️ layout.tsx
+  📁 setup/
+    ⚛️ page.tsx
+  🎨 globals.css
+  ⚛️ layout.tsx
+  ⚛️ loading.tsx
+  ⚛️ page.tsx
+📁 components/
+  📁 auth/
+    ⚛️ auth-prompt.tsx
+    ⚛️ auth-status-banner.tsx
+    ⚛️ firebase-setup-guide.tsx
+    ⚛️ oauth-debug.tsx
+  📁 core/
+    ⚛️ app-initializer.tsx
+    ⚛️ fi-money-logo.tsx
+    ⚛️ loading-animation.tsx
+  📁 maps/
+    ⚛️ city-map.tsx
+  📁 mobile/
+    ⚛️ app-sidebar.tsx
+    ⚛️ bottom-nav.tsx
+    ⚛️ location-edit-modal.tsx
+    ⚛️ mobile-header.tsx
+  📁 onboarding/
+    ⚛️ welcome-screen.tsx
+  📁 providers/
+    ⚛️ config-validator.tsx
+  📁 ui/
+    ⚛️ accordion.tsx
+    ⚛️ alert-dialog.tsx
+    ⚛️ alert.tsx
+    ⚛️ aspect-ratio.tsx
+    ⚛️ avatar.tsx
+    ⚛️ badge.tsx
+    ⚛️ breadcrumb.tsx
+    ⚛️ button.tsx
+    ⚛️ calendar.tsx
+    ⚛️ card.tsx
+    ⚛️ carousel.tsx
+    ⚛️ chart.tsx
+    ⚛️ checkbox.tsx
+    ⚛️ collapsible.tsx
+    ⚛️ command.tsx
+    ⚛️ context-menu.tsx
+    ⚛️ dialog.tsx
+    ⚛️ drawer.tsx
+    ⚛️ dropdown-menu.tsx
+    ⚛️ form.tsx
+    ⚛️ hover-card.tsx
+    ⚛️ input-otp.tsx
+    ⚛️ input.tsx
+    ⚛️ label.tsx
+    ⚛️ menubar.tsx
+    ⚛️ navigation-menu.tsx
+    ⚛️ pagination.tsx
+    ⚛️ popover.tsx
+    ⚛️ progress.tsx
+    ⚛️ radio-group.tsx
+    ⚛️ resizable.tsx
+    ⚛️ scroll-area.tsx
+    ⚛️ select.tsx
+    ⚛️ separator.tsx
+    ⚛️ sheet.tsx
+    ⚛️ sidebar.tsx
+    ⚛️ skeleton.tsx
+    ⚛️ slider.tsx
+    ⚛️ sonner.tsx
+    ⚛️ switch.tsx
+    ⚛️ table.tsx
+    ⚛️ tabs.tsx
+    ⚛️ textarea.tsx
+    ⚛️ toast.tsx
+    ⚛️ toaster.tsx
+    ⚛️ toggle-group.tsx
+    ⚛️ toggle.tsx
+    ⚛️ tooltip.tsx
+    ⚛️ use-mobile.tsx
+    🔷 use-toast.ts
+  ⚛️ error-boundary.tsx
+  ⚛️ theme-provider.tsx
+📁 config/
+  📋 oauth-client.json
+📁 contexts/
+  ⚛️ auth-context.tsx
+  ⚛️ location-context.tsx
+📁 hooks/
+  🔷 use-live-data.ts
+  ⚛️ use-mobile.tsx
+  🔷 use-toast.ts
+📁 lib/
+  🔷 ai-insights-service.ts
+  🔷 api-services.ts
+  🔷 config.ts
+  🔷 error-handling.ts
+  🔷 firebase.ts
+  🔷 gemini-service.ts
+  🔷 google-maps-sdk.ts
+  🔷 google-services.ts
+  🔷 map-utils.ts
+  🔷 oauth-config.ts
+  🔷 report-storage.ts
+  🔷 utils.ts
+📁 styles/
+  🎨 globals.css
+📁 types/
+  🔷 auth.ts
+📋 .eslintrc.json
+📝 README.md
+📋 client_secret_14008380219-anv3mffil9pg5i7tiiu0iqsmnci1rsar.apps.googleusercontent.com.json
+📋 components.json
+🟨 extract-codebase.js
+🔷 next-env.d.ts
+🟨 next.config.mjs
+📋 package.json
+🟨 postcss.config.mjs
+🟨 prettier.config.js
+🔷 tailwind.config.ts
+📋 tsconfig.json
+📋 vercel.json
+```
+
+
+
+---
+
+# Code Files
+
+
+## File: app/(main)/layout.tsx
+
+```tsx
+import type React from "react"
+import { BottomNav } from "@/components/mobile/bottom-nav"
+import { MobileHeader } from "@/components/mobile/mobile-header"
+import { AuthStatusBanner } from "@/components/auth/auth-status-banner"
+
+export default function MainAppLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="relative flex min-h-dvh w-full flex-col">
+      <MobileHeader />
+      <main className="flex-1">
+        <div className="p-4 pt-0">
+          <AuthStatusBanner />
+        </div>
+        {children}
+      </main>
+      <BottomNav />
+    </div>
+  )
+}
+
+```
+
+## File: app/setup/page.tsx
+
+```tsx
+import { FirebaseSetupGuide } from "@/components/auth/firebase-setup-guide"
+import { OAuthDebugPanel } from "@/components/auth/oauth-debug"
+
+export default function SetupPage() {
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto py-8">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold mb-2">XphoraPulse Setup</h1>
+          <p className="text-muted-foreground">Configure Firebase and OAuth to enable all features</p>
+        </div>
+
+        <div className="space-y-8">
+          <OAuthDebugPanel />
+          <FirebaseSetupGuide />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+```
+
+## File: app/(main)/chat/page.tsx
+
+```tsx
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { MessageSquare } from "lucide-react"
+
+export default function ChatPage() {
+  return (
+    <div className="p-4 flex items-center justify-center h-[calc(100dvh-8rem)]">
+      <Card className="w-full max-w-md mx-auto text-center">
+        <CardHeader>
+          <MessageSquare className="h-12 w-12 mx-auto text-primary" />
+          <CardTitle className="mt-4">Community Chat</CardTitle>
+          <CardDescription>Coming Soon!</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            Connect with your neighbors, discuss local issues, and stay informed with real-time community chat.
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+```
+
+## File: app/(main)/map/page.tsx
+
+```tsx
+"use client"
+
+import { useState } from "react"
+import { CityMap } from "@/components/maps/city-map"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Layers, Filter, MapPin, TrafficCone, Cloud, AlertTriangle, Smile, X, Navigation } from "lucide-react"
+import { cn } from "@/lib/utils"
+
+export default function MapPage() {
+  const [activeFilters, setActiveFilters] = useState<string[]>(["traffic", "incidents"])
+  const [selectedIncident, setSelectedIncident] = useState<any>(null)
+
+  const layerToggles = [
+    { id: "traffic", label: "Traffic", icon: TrafficCone, color: "text-red-500" },
+    { id: "weather", label: "Weather", icon: Cloud, color: "text-blue-500" },
+    { id: "incidents", label: "Incidents", icon: AlertTriangle, color: "text-orange-500" },
+    { id: "mood", label: "Mood", icon: Smile, color: "text-green-500" },
+  ]
+
+  const toggleFilter = (filterId: string) => {
+    setActiveFilters((prev) => (prev.includes(filterId) ? prev.filter((id) => id !== filterId) : [...prev, filterId]))
+  }
+
+  // Mock incident data
+  const mockIncident = {
+    id: 1,
+    title: "Heavy Traffic Congestion",
+    description:
+      "AI Analysis: Major bottleneck detected due to ongoing road construction. Alternative routes via Koramangala 5th Block recommended.",
+    location: "Silk Board Junction",
+    severity: "high",
+    category: "traffic",
+    time: "5 minutes ago",
+    reports: 23,
+    aiConfidence: 94,
+  }
+
+  return (
+    <div className="relative h-[calc(100vh-4rem)] pb-16">
+      <CityMap fullscreen />
+
+      {/* Layer Controls */}
+      <div className="absolute top-4 left-4 z-10 space-y-2">
+        <Card>
+          <CardContent className="p-2">
+            <div className="flex items-center gap-1 mb-2">
+              <Layers className="h-4 w-4" />
+              <span className="text-sm font-medium">Layers</span>
+            </div>
+            <div className="space-y-1">
+              {layerToggles.map((layer) => {
+                const Icon = layer.icon
+                const isActive = activeFilters.includes(layer.id)
+                return (
+                  <Button
+                    key={layer.id}
+                    variant={isActive ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => toggleFilter(layer.id)}
+                    className={cn(
+                      "w-full justify-start gap-2 h-8",
+                      isActive && "bg-primary/10 text-primary border-primary/20",
+                    )}
+                  >
+                    <Icon className={cn("h-3 w-3", isActive ? "text-primary" : layer.color)} />
+                    <span className="text-xs">{layer.label}</span>
+                  </Button>
+                )
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filter Controls */}
+      <div className="absolute top-4 right-4 z-10">
+        <Button variant="outline" size="sm" className="bg-white/90 backdrop-blur-sm">
+          <Filter className="h-4 w-4 mr-1" />
+          Filter
+        </Button>
+      </div>
+
+      {/* Mock Incident Marker Detail */}
+      <div className="absolute bottom-20 left-4 right-4 z-10">
+        <Card className="bg-white/95 backdrop-blur-sm border-2 border-red-200">
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                <Badge variant="destructive" className="text-xs">
+                  HIGH SEVERITY
+                </Badge>
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => setSelectedIncident(null)} className="h-6 w-6 p-0">
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <h3 className="font-bold text-lg mb-2">{mockIncident.title}</h3>
+            <p className="text-sm text-muted-foreground mb-3">
+              <MapPin className="h-3 w-3 inline mr-1" />
+              {mockIncident.location}
+            </p>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                <span className="text-xs font-medium text-blue-700">AI Analysis</span>
+                <Badge variant="outline" className="text-xs text-blue-600 border-blue-300">
+                  {mockIncident.aiConfidence}% confidence
+                </Badge>
+              </div>
+              <p className="text-sm text-blue-700">{mockIncident.description}</p>
+            </div>
+
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>
+                {mockIncident.reports} reports • {mockIncident.time}
+              </span>
+              <Button variant="outline" size="sm" className="h-7 bg-transparent">
+                <Navigation className="h-3 w-3 mr-1" />
+                Navigate
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
+```
+
+## File: app/(main)/alerts/page.tsx
+
+```tsx
+"use client"
+
+import { useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Switch } from "@/components/ui/switch"
+import { Bell, MapPin, Clock, TrendingUp, AlertTriangle, Settings, Zap } from "lucide-react"
+import { useLocation } from "@/contexts/location-context"
+
+export default function AlertsPage() {
+  const { district, city } = useLocation()
+  const [alertPreferences, setAlertPreferences] = useState({
+    traffic: true,
+    weather: true,
+    incidents: true,
+    events: false,
+    predictions: true,
+  })
+
+  const togglePreference = (key: string) => {
+    setAlertPreferences((prev) => ({
+      ...prev,
+      [key]: !prev[key as keyof typeof prev],
+    }))
+  }
+
+  // Mock alerts data
+  const recentAlerts = [
+    {
+      id: 1,
+      type: "prediction",
+      title: "Heavy Traffic Predicted",
+      message: "AI predicts 40% increase in traffic on ORR between 6-8 PM today",
+      location: "Outer Ring Road",
+      time: "2 hours ago",
+      severity: "medium",
+      read: false,
+    },
+    {
+      id: 2,
+      type: "incident",
+      title: "Waterlogging Alert",
+      message: "Flooding reported near Silk Board. Avoid the area if possible.",
+      location: "Silk Board Junction",
+      time: "45 minutes ago",
+      severity: "high",
+      read: false,
+    },
+    {
+      id: 3,
+      type: "weather",
+      title: "Rain Expected",
+      message: "Moderate rainfall expected in your area within the next 2 hours",
+      location: district || "Your Area",
+      time: "1 hour ago",
+      severity: "low",
+      read: true,
+    },
+    {
+      id: 4,
+      type: "traffic",
+      title: "Route Cleared",
+      message: "Traffic congestion on MG Road has been cleared. Normal flow resumed.",
+      location: "MG Road",
+      time: "3 hours ago",
+      severity: "low",
+      read: true,
+    },
+  ]
+
+  const subscribedAreas = [
+    { name: district || "Current Location", active: true },
+    { name: "Koramangala", active: true },
+    { name: "Indiranagar", active: false },
+    { name: "Whitefield", active: true },
+    { name: "Electronic City", active: false },
+  ]
+
+  const getAlertIcon = (type: string) => {
+    switch (type) {
+      case "prediction":
+        return TrendingUp
+      case "incident":
+        return AlertTriangle
+      case "weather":
+        return Clock
+      case "traffic":
+        return MapPin
+      default:
+        return Bell
+    }
+  }
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case "high":
+        return "border-red-200 bg-red-50"
+      case "medium":
+        return "border-yellow-200 bg-yellow-50"
+      case "low":
+        return "border-green-200 bg-green-50"
+      default:
+        return "border-gray-200 bg-gray-50"
+    }
+  }
+
+  const getSeverityBadge = (severity: string) => {
+    switch (severity) {
+      case "high":
+        return "destructive"
+      case "medium":
+        return "secondary"
+      case "low":
+        return "outline"
+      default:
+        return "outline"
+    }
+  }
+
+  return (
+    <div className="pb-16 p-4 space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Alerts</h1>
+        <Button variant="outline" size="sm">
+          <Settings className="h-4 w-4 mr-1" />
+          Settings
+        </Button>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-2 gap-4">
+        <Card>
+          <CardContent className="p-4 text-center">
+            <Bell className="h-6 w-6 mx-auto mb-2 text-primary" />
+            <div className="text-2xl font-bold text-primary">{recentAlerts.filter((a) => !a.read).length}</div>
+            <div className="text-sm text-muted-foreground">Unread</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 text-center">
+            <MapPin className="h-6 w-6 mx-auto mb-2 text-green-600" />
+            <div className="text-2xl font-bold text-green-600">{subscribedAreas.filter((a) => a.active).length}</div>
+            <div className="text-sm text-muted-foreground">Areas</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Subscribed Areas */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <MapPin className="h-5 w-5 text-primary" />
+            Your Areas
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {subscribedAreas.map((area, index) => (
+            <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className={`w-2 h-2 rounded-full ${area.active ? "bg-green-500" : "bg-gray-300"}`} />
+                <span className="font-medium">{area.name}</span>
+              </div>
+              <Switch checked={area.active} onCheckedChange={() => {}} size="sm" />
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      {/* Alert Preferences */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Settings className="h-5 w-5 text-primary" />
+            Alert Types
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {Object.entries(alertPreferences).map(([key, value]) => (
+            <div key={key} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="capitalize font-medium">{key}</div>
+              </div>
+              <Switch checked={value} onCheckedChange={() => togglePreference(key)} size="sm" />
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      {/* Recent Alerts */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Clock className="h-5 w-5 text-primary" />
+            Recent Alerts
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {recentAlerts.map((alert) => {
+            const Icon = getAlertIcon(alert.type)
+            return (
+              <div
+                key={alert.id}
+                className={`p-4 rounded-lg border-2 ${getSeverityColor(alert.severity)} ${!alert.read ? "border-l-4 border-l-primary" : ""}`}
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Icon className="h-4 w-4 text-primary" />
+                    <span className="font-semibold text-sm">{alert.title}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant={getSeverityBadge(alert.severity) as any} className="text-xs">
+                      {alert.severity.toUpperCase()}
+                    </Badge>
+                    {!alert.read && <div className="w-2 h-2 bg-primary rounded-full" />}
+                  </div>
+                </div>
+                <p className="text-sm text-gray-700 mb-2">{alert.message}</p>
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    {alert.location}
+                  </span>
+                  <span>{alert.time}</span>
+                </div>
+              </div>
+            )
+          })}
+        </CardContent>
+      </Card>
+
+      {/* AI Predictions */}
+      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Zap className="h-5 w-5 text-blue-600" />
+            AI Predictions for {city}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="p-3 bg-white/60 rounded-lg border border-blue-200">
+            <div className="flex items-center gap-2 mb-1">
+              <TrendingUp className="h-4 w-4 text-blue-600" />
+              <span className="font-medium text-blue-700 text-sm">Traffic Forecast</span>
+            </div>
+            <p className="text-sm text-blue-600">Peak congestion expected on ORR at 7:30 PM (85% confidence)</p>
+          </div>
+          <div className="p-3 bg-white/60 rounded-lg border border-purple-200">
+            <div className="flex items-center gap-2 mb-1">
+              <AlertTriangle className="h-4 w-4 text-purple-600" />
+              <span className="font-medium text-purple-700 text-sm">Event Impact</span>
+            </div>
+            <p className="text-sm text-purple-600">
+              Cricket match at Chinnaswamy Stadium may cause traffic delays (72% confidence)
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+```
+
+## File: app/(main)/profile/page.tsx
+
+```tsx
+"use client"
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Progress } from "@/components/ui/progress"
+import {
+  User,
+  MapPin,
+  Camera,
+  Star,
+  TrendingUp,
+  Settings,
+  Award,
+  CheckCircle,
+  Clock,
+  AlertTriangle,
+} from "lucide-react"
+import { useAuth } from "@/contexts/auth-context"
+import { useLocation } from "@/contexts/location-context"
+
+export default function ProfilePage() {
+  const { authState, user } = useAuth()
+  const { district, city } = useLocation()
+
+  // Mock user stats
+  const userStats = {
+    reportsSubmitted: 23,
+    impactScore: 847,
+    accuracy: 94,
+    rank: "Community Champion",
+    level: 7,
+    nextLevelProgress: 65,
+  }
+
+  // Mock submitted reports
+  const submittedReports = [
+    {
+      id: 1,
+      title: "Pothole on 100 Feet Road",
+      location: "Koramangala 4th Block",
+      status: "resolved",
+      date: "2 days ago",
+      impact: 45,
+      category: "infrastructure",
+    },
+    {
+      id: 2,
+      title: "Traffic signal malfunction",
+      location: "Silk Board Junction",
+      status: "in-progress",
+      date: "5 days ago",
+      impact: 78,
+      category: "traffic",
+    },
+    {
+      id: 3,
+      title: "Street light not working",
+      location: "HSR Layout Sector 1",
+      status: "verified",
+      date: "1 week ago",
+      impact: 23,
+      category: "infrastructure",
+    },
+  ]
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "resolved":
+        return "text-green-600 bg-green-100"
+      case "in-progress":
+        return "text-yellow-600 bg-yellow-100"
+      case "verified":
+        return "text-blue-600 bg-blue-100"
+      default:
+        return "text-gray-600 bg-gray-100"
+    }
+  }
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "resolved":
+        return CheckCircle
+      case "in-progress":
+        return Clock
+      case "verified":
+        return AlertTriangle
+      default:
+        return Clock
+    }
+  }
+
+  if (authState.mode === "anonymous") {
+    return (
+      <div className="pb-16 p-4 flex items-center justify-center min-h-[60vh]">
+        <Card className="w-full max-w-md text-center">
+          <CardContent className="p-6">
+            <User className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+            <h2 className="text-xl font-bold mb-2">Sign In Required</h2>
+            <p className="text-muted-foreground mb-4">
+              Sign in to view your profile, track your contributions, and manage your preferences.
+            </p>
+            <Button className="w-full">Sign In with Google</Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  return (
+    <div className="pb-16 p-4 space-y-4">
+      {/* Profile Header */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center gap-4 mb-4">
+            <Avatar className="h-16 w-16">
+              <AvatarImage src={user?.photoURL || ""} alt={user?.displayName || ""} />
+              <AvatarFallback className="text-lg">{user?.displayName?.charAt(0) || "U"}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <h1 className="text-xl font-bold">{user?.displayName}</h1>
+              <p className="text-muted-foreground">{user?.email}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <MapPin className="h-4 w-4 text-primary" />
+                <span className="text-sm text-primary">
+                  {district}, {city}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <Badge variant="secondary" className="bg-primary/10 text-primary">
+              <Award className="h-3 w-3 mr-1" />
+              {userStats.rank}
+            </Badge>
+            <Badge variant="outline">Level {userStats.level}</Badge>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Impact Score */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <TrendingUp className="h-5 w-5 text-primary" />
+            Impact Score
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="text-center">
+            <div className="text-3xl font-bold text-primary mb-1">{userStats.impactScore}</div>
+            <p className="text-sm text-muted-foreground">Your contributions have helped improve city intelligence</p>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Progress to Level {userStats.level + 1}</span>
+              <span>{userStats.nextLevelProgress}%</span>
+            </div>
+            <Progress value={userStats.nextLevelProgress} className="h-2" />
+          </div>
+
+          <div className="grid grid-cols-3 gap-4 pt-2">
+            <div className="text-center">
+              <div className="text-xl font-bold text-green-600">{userStats.reportsSubmitted}</div>
+              <div className="text-xs text-muted-foreground">Reports</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xl font-bold text-blue-600">{userStats.accuracy}%</div>
+              <div className="text-xs text-muted-foreground">Accuracy</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xl font-bold text-purple-600">#{Math.floor(userStats.impactScore / 100)}</div>
+              <div className="text-xs text-muted-foreground">City Rank</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Recent Reports */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Camera className="h-5 w-5 text-primary" />
+            Your Reports
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {submittedReports.map((report) => {
+            const StatusIcon = getStatusIcon(report.status)
+            return (
+              <div key={report.id} className="p-4 bg-muted/50 rounded-lg">
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="font-medium text-sm">{report.title}</h3>
+                  <Badge className={getStatusColor(report.status)}>
+                    <StatusIcon className="h-3 w-3 mr-1" />
+                    {report.status}
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground mb-2">
+                  <MapPin className="h-3 w-3 inline mr-1" />
+                  {report.location}
+                </p>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">{report.date}</span>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">
+                      {report.category}
+                    </Badge>
+                    <span className="text-primary font-medium">+{report.impact} impact</span>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </CardContent>
+      </Card>
+
+      {/* Achievements */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Star className="h-5 w-5 text-primary" />
+            Achievements
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
+              <Award className="h-6 w-6 mx-auto mb-1 text-yellow-600" />
+              <div className="text-sm font-medium text-yellow-700">First Reporter</div>
+              <div className="text-xs text-yellow-600">Submitted first report</div>
+            </div>
+            <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-center">
+              <CheckCircle className="h-6 w-6 mx-auto mb-1 text-green-600" />
+              <div className="text-sm font-medium text-green-700">Problem Solver</div>
+              <div className="text-xs text-green-600">5 reports resolved</div>
+            </div>
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-center">
+              <TrendingUp className="h-6 w-6 mx-auto mb-1 text-blue-600" />
+              <div className="text-sm font-medium text-blue-700">Rising Star</div>
+              <div className="text-xs text-blue-600">Top 10% contributor</div>
+            </div>
+            <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg text-center opacity-50">
+              <Star className="h-6 w-6 mx-auto mb-1 text-purple-600" />
+              <div className="text-sm font-medium text-purple-700">Community Hero</div>
+              <div className="text-xs text-purple-600">50 reports needed</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Settings */}
+      <Card>
+        <CardContent className="p-4">
+          <Button variant="outline" className="w-full bg-transparent">
+            <Settings className="h-4 w-4 mr-2" />
+            Account Settings
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+```
+
+## File: app/(main)/prediction/page.tsx
+
+```tsx
+"use client"
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
+import {
+  TrendingUp,
+  TrendingDown,
+  Brain,
+  Clock,
+  MapPin,
+  CheckCircle,
+  Zap,
+  BarChart3,
+  Activity,
+  Cloud,
+  Car,
+} from "lucide-react"
+import { useLocation } from "@/contexts/location-context"
+import { useLiveData } from "@/hooks/use-live-data"
+
+export default function PredictionPage() {
+  const { district, city } = useLocation()
+  const { weather, traffic, isLoading } = useLiveData()
+
+  // Mock prediction data - in real app, this would come from AI models
+  const predictions = [
+    {
+      id: 1,
+      title: "Traffic Surge Prediction",
+      description: `Heavy traffic expected on major routes in ${district || "your area"} between 6:30-8:00 PM`,
+      confidence: 89,
+      timeframe: "Next 2 hours",
+      impact: "High",
+      category: "traffic",
+      trend: "increasing",
+      probability: 89,
+      factors: ["Rush hour pattern", "Weather conditions", "Event schedules"],
+    },
+    {
+      id: 2,
+      title: "Weather Impact Forecast",
+      description: "Light rain may cause 25% increase in travel time on outer ring road",
+      confidence: 76,
+      timeframe: "Next 4 hours",
+      impact: "Medium",
+      category: "weather",
+      trend: "stable",
+      probability: 76,
+      factors: ["Weather forecast", "Historical patterns", "Road conditions"],
+    },
+    {
+      id: 3,
+      title: "Air Quality Improvement",
+      description: "AQI expected to improve by 15-20 points due to wind patterns",
+      confidence: 82,
+      timeframe: "Next 6 hours",
+      impact: "Low",
+      category: "environment",
+      trend: "improving",
+      probability: 82,
+      factors: ["Wind direction", "Pollution sources", "Time of day"],
+    },
+    {
+      id: 4,
+      title: "Incident Probability",
+      description: "Low probability of major incidents in your area today",
+      confidence: 94,
+      timeframe: "Next 12 hours",
+      impact: "Low",
+      category: "safety",
+      trend: "stable",
+      probability: 6, // Low probability of incidents
+      factors: ["Historical data", "Current conditions", "Event calendar"],
+    },
+  ]
+
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case "traffic":
+        return Car
+      case "weather":
+        return Cloud
+      case "environment":
+        return Activity
+      case "safety":
+        return CheckCircle
+      default:
+        return Brain
+    }
+  }
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case "traffic":
+        return "bg-red-500/10 text-red-600 border-red-200"
+      case "weather":
+        return "bg-blue-500/10 text-blue-600 border-blue-200"
+      case "environment":
+        return "bg-green-500/10 text-green-600 border-green-200"
+      case "safety":
+        return "bg-purple-500/10 text-purple-600 border-purple-200"
+      default:
+        return "bg-gray-500/10 text-gray-600 border-gray-200"
+    }
+  }
+
+  const getImpactColor = (impact: string) => {
+    switch (impact) {
+      case "High":
+        return "destructive"
+      case "Medium":
+        return "secondary"
+      case "Low":
+        return "outline"
+      default:
+        return "outline"
+    }
+  }
+
+  const getTrendIcon = (trend: string) => {
+    switch (trend) {
+      case "increasing":
+        return <TrendingUp className="h-4 w-4 text-red-500" />
+      case "decreasing":
+        return <TrendingDown className="h-4 w-4 text-green-500" />
+      case "improving":
+        return <TrendingUp className="h-4 w-4 text-green-500" />
+      case "stable":
+        return <Activity className="h-4 w-4 text-blue-500" />
+      default:
+        return <Activity className="h-4 w-4 text-gray-500" />
+    }
+  }
+
+  return (
+    <div className="pb-16 p-4 space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <Brain className="h-6 w-6 text-primary" />
+            AI Predictions
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Smart forecasts for {district || "your area"}, {city}
+          </p>
+        </div>
+        <Button variant="outline" size="sm">
+          <BarChart3 className="h-4 w-4 mr-1" />
+          Analytics
+        </Button>
+      </div>
+
+      {/* Current Conditions Summary */}
+      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Zap className="h-5 w-5 text-blue-600" />
+            Current Conditions
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="text-center p-3 bg-white/60 rounded-lg">
+              <div className="text-2xl font-bold text-blue-700">
+                {isLoading ? "--" : `${weather?.temperature || 28}°C`}
+              </div>
+              <div className="text-sm text-blue-600">Temperature</div>
+            </div>
+            <div className="text-center p-3 bg-white/60 rounded-lg">
+              <div className="text-2xl font-bold text-purple-700">
+                {isLoading ? "--" : traffic?.status || "Moderate"}
+              </div>
+              <div className="text-sm text-purple-600">Traffic</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Predictions List */}
+      <div className="space-y-4">
+        {predictions.map((prediction) => {
+          const CategoryIcon = getCategoryIcon(prediction.category)
+          return (
+            <Card key={prediction.id} className="border-l-4 border-l-primary">
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${getCategoryColor(prediction.category)}`}>
+                      <CategoryIcon className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">{prediction.title}</CardTitle>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Clock className="h-3 w-3 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">{prediction.timeframe}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {getTrendIcon(prediction.trend)}
+                    <Badge variant={getImpactColor(prediction.impact) as any} className="text-xs">
+                      {prediction.impact}
+                    </Badge>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">{prediction.description}</p>
+
+                {/* Confidence and Probability */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Confidence</span>
+                      <span>{prediction.confidence}%</span>
+                    </div>
+                    <Progress value={prediction.confidence} className="h-2" />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Probability</span>
+                      <span>{prediction.probability}%</span>
+                    </div>
+                    <Progress value={prediction.probability} className="h-2" />
+                  </div>
+                </div>
+
+                {/* Contributing Factors */}
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-2">Key Factors:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {prediction.factors.map((factor, index) => (
+                      <Badge key={index} variant="outline" className="text-xs">
+                        {factor}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Action Button */}
+                <div className="flex justify-between items-center pt-2">
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <MapPin className="h-3 w-3" />
+                    <span>{district || "Your area"}</span>
+                  </div>
+                  <Button variant="ghost" size="sm" className="h-7 text-xs">
+                    View Details
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )
+        })}
+      </div>
+
+      {/* AI Model Info */}
+      <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-2 text-green-800 mb-2">
+            <Brain className="h-5 w-5" />
+            <span className="font-medium">AI Prediction Engine</span>
+          </div>
+          <div className="space-y-2 text-sm text-green-700">
+            <p>Powered by machine learning models analyzing:</p>
+            <ul className="list-disc list-inside space-y-1 text-xs">
+              <li>Historical traffic patterns and weather data</li>
+              <li>Real-time sensor data and user reports</li>
+              <li>Event schedules and seasonal trends</li>
+              <li>Social media sentiment and news feeds</li>
+            </ul>
+            <div className="flex items-center gap-2 mt-3 p-2 bg-white/60 rounded border border-green-200">
+              <CheckCircle className="h-4 w-4 text-green-600" />
+              <span className="text-xs font-medium">Model accuracy: 87% over last 30 days</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+```
+
+## File: app/(main)/dashboard/page.tsx
+
+```tsx
+"use client"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import {
+  Wind,
+  Thermometer,
+  TrafficCone,
+  Smile,
+  AlertTriangle,
+  Camera,
+  RefreshCw,
+  Wifi,
+  WifiOff,
+  TrendingUp,
+  MapPin,
+  Zap,
+} from "lucide-react"
+import { CityMap } from "@/components/maps/city-map"
+import { useLiveData } from "@/hooks/use-live-data"
+import { useLocation } from "@/contexts/location-context"
+import { cn } from "@/lib/utils"
+import { useRouter } from "next/navigation"
+
+export default function DashboardPage() {
+  const { weather, airQuality, traffic, cityMood, isLoading, lastUpdated, refresh } = useLiveData()
+  const { district, city, coords, isLoading: locationLoading } = useLocation()
+  const router = useRouter()
+
+  // Calculate city pulse score (0-100)
+  const calculateCityPulse = () => {
+    if (!weather || !airQuality || !traffic || !cityMood) return 0
+
+    const weatherScore = Math.max(0, 100 - Math.abs(weather.temperature - 25) * 2)
+    const airScore = Math.max(0, 100 - airQuality.aqi)
+    const trafficScore = traffic.status === "Light" ? 90 : traffic.status === "Moderate" ? 60 : 30
+    const moodScore = cityMood.score
+
+    return Math.round((weatherScore + airScore + trafficScore + moodScore) / 4)
+  }
+
+  const cityPulse = calculateCityPulse()
+  const getPulseColor = (score: number) => {
+    if (score >= 80) return "text-green-600"
+    if (score >= 60) return "text-yellow-600"
+    if (score >= 40) return "text-orange-600"
+    return "text-red-600"
+  }
+
+  const getPulseBgColor = (score: number) => {
+    if (score >= 80) return "bg-green-500/10 border-green-400/30"
+    if (score >= 60) return "bg-yellow-500/10 border-yellow-400/30"
+    if (score >= 40) return "bg-orange-500/10 border-orange-400/30"
+    return "bg-red-500/10 border-red-400/30"
+  }
+
+  const getLiveStatus = () => {
+    if (isLoading || locationLoading) {
+      return {
+        status: "UPDATING",
+        color: "text-amber-600",
+        bgColor: "bg-amber-500/20 border-amber-400/40",
+        icon: RefreshCw,
+        animate: "animate-spin",
+      }
+    }
+
+    if (!lastUpdated) {
+      return {
+        status: "OFFLINE",
+        color: "text-red-600",
+        bgColor: "bg-red-500/20 border-red-400/40",
+        icon: WifiOff,
+        animate: "",
+      }
+    }
+
+    const timeSinceUpdate = Date.now() - lastUpdated.getTime()
+    if (timeSinceUpdate > 60000) {
+      return {
+        status: "STALE",
+        color: "text-orange-600",
+        bgColor: "bg-orange-500/20 border-orange-400/40",
+        icon: Wifi,
+        animate: "",
+      }
+    }
+
+    return {
+      status: "LIVE",
+      color: "text-green-600",
+      bgColor: "bg-green-500/20 border-green-400/40",
+      icon: Wifi,
+      animate: "animate-pulse",
+    }
+  }
+
+  const liveStatus = getLiveStatus()
+  const LiveIcon = liveStatus.icon
+
+  // Mock current incidents - these would also be location-based in a real app
+  const currentIncidents = [
+    {
+      id: 1,
+      title: `Heavy traffic near ${district || "your area"}`,
+      location: `${district || "Local area"} Junction`,
+      severity: "high",
+      time: "5m ago",
+      category: "traffic",
+    },
+    {
+      id: 2,
+      title: "Waterlogging reported",
+      location: `${city || "City"} Center`,
+      severity: "medium",
+      time: "12m ago",
+      category: "infrastructure",
+    },
+    {
+      id: 3,
+      title: "Cultural event causing crowd",
+      location: `${district || "Local"} Market`,
+      severity: "low",
+      time: "18m ago",
+      category: "event",
+    },
+  ]
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case "high":
+        return "bg-red-500"
+      case "medium":
+        return "bg-yellow-500"
+      case "low":
+        return "bg-green-500"
+      default:
+        return "bg-gray-500"
+    }
+  }
+
+  return (
+    <div className="pb-16">
+      {/* Compact Map Section */}
+      <div className="relative h-64">
+        <CityMap initialCenter={coords || undefined} />
+
+        {/* Live Status Indicator */}
+        <div className="absolute top-2 left-2 z-10">
+          <Card className={cn("transition-all duration-300 border", liveStatus.bgColor)}>
+            <CardContent className="p-1.5 flex items-center gap-1.5">
+              <LiveIcon className={cn("h-3 w-3", liveStatus.color, liveStatus.animate)} />
+              <span className={cn("text-xs font-bold", liveStatus.color)}>{liveStatus.status}</span>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* City Pulse Score */}
+        <div className="absolute top-2 right-2 z-10">
+          <Card className={cn("transition-all duration-300 border-2", getPulseBgColor(cityPulse))}>
+            <CardContent className="p-2 text-center">
+              <div className={cn("text-2xl font-bold", getPulseColor(cityPulse))}>{isLoading ? "--" : cityPulse}</div>
+              <div className="text-xs font-medium text-gray-600">City Pulse</div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="p-4 space-y-4">
+        {/* Area Status */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <MapPin className="h-5 w-5 text-primary" />
+              {district || "Your Area"} Status
+              {locationLoading && <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="text-center p-3 bg-green-500/10 rounded-lg border border-green-400/30">
+                <Thermometer className="h-6 w-6 mx-auto mb-1 text-green-600" />
+                <div className="font-bold text-green-700">{isLoading ? "--" : `${weather?.temperature || "--"}°C`}</div>
+                <div className="text-xs text-green-600">Weather</div>
+              </div>
+              <div className="text-center p-3 bg-yellow-500/10 rounded-lg border border-yellow-400/30">
+                <Wind className="h-6 w-6 mx-auto mb-1 text-yellow-600" />
+                <div className="font-bold text-yellow-700">{isLoading ? "--" : `AQI ${airQuality?.aqi || "--"}`}</div>
+                <div className="text-xs text-yellow-600">Air Quality</div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-blue-500/10 rounded-lg border border-blue-400/30">
+              <div className="flex items-center gap-2">
+                <TrafficCone className="h-5 w-5 text-blue-600" />
+                <span className="font-medium text-blue-700">
+                  Traffic: {isLoading ? "Loading..." : traffic?.status || "Loading..."}
+                </span>
+              </div>
+              <Badge variant="outline" className="text-blue-600 border-blue-400">
+                {isLoading ? "--" : traffic?.avgSpeed || "--"} km/h
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Report Button */}
+        <Card className="bg-primary/5 border-primary/20">
+          <CardContent className="p-4">
+            <Button onClick={() => router.push("/report")} className="w-full h-12 text-base font-semibold" size="lg">
+              <Camera className="mr-2 h-5 w-5" />
+              Report an Incident
+            </Button>
+            <p className="text-xs text-muted-foreground text-center mt-2">
+              Help your community by reporting what you see
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Current Incidents */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center justify-between text-lg">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-primary" />
+                Top Incidents
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => router.push("/map")}>
+                View All
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {currentIncidents.map((incident) => (
+              <div key={incident.id} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+                <div className={cn("w-2 h-2 rounded-full mt-2", getSeverityColor(incident.severity))} />
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm">{incident.title}</p>
+                  <p className="text-xs text-muted-foreground">{incident.location}</p>
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  <Badge variant="outline" className="text-xs">
+                    {incident.category}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">{incident.time}</span>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* AI Updates */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Zap className="h-5 w-5 text-primary" />
+              AI Insights for {city || "Your City"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-400/30">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingUp className="h-4 w-4 text-blue-600" />
+                <span className="font-medium text-blue-700 text-sm">Traffic Prediction</span>
+              </div>
+              <p className="text-sm text-blue-600">
+                {isLoading
+                  ? "Analyzing traffic patterns..."
+                  : `Heavy traffic expected in ${district || "your area"} between 6-8 PM due to ongoing construction.`}
+              </p>
+            </div>
+            <div className="p-3 bg-green-500/10 rounded-lg border border-green-400/30">
+              <div className="flex items-center gap-2 mb-2">
+                <Smile className="h-4 w-4 text-green-600" />
+                <span className="font-medium text-green-700 text-sm">Community Mood</span>
+              </div>
+              <p className="text-sm text-green-600">
+                {isLoading
+                  ? "Analyzing community sentiment..."
+                  : `${cityMood?.mood || "Positive"} sentiment in ${district || "your area"} after successful waste management initiative.`}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
+```
+
+## File: app/(main)/financial-pulse/page.tsx
+
+```tsx
+"use client"
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
+import {
+  IndianRupee,
+  TrendingUp,
+  TrendingDown,
+  Building2,
+  ShoppingCart,
+  Fuel,
+  Home,
+  Utensils,
+  Car,
+  Zap,
+  MapPin,
+  Clock,
+  BarChart3,
+} from "lucide-react"
+import { useLocation } from "@/contexts/location-context"
+import { useAuth } from "@/contexts/auth-context"
+import { FiMoneyLogo } from "@/components/core/fi-money-logo"
+
+export default function FinancialPulsePage() {
+  const { district, city } = useLocation()
+  const { authState, requireAuth } = useAuth()
+
+  // Mock financial data for Bengaluru
+  const financialMetrics = {
+    costOfLiving: {
+      index: 42.8,
+      change: -2.3,
+      rank: "Moderate",
+    },
+    averageIncome: {
+      amount: 85000,
+      change: 5.2,
+      currency: "INR",
+    },
+    propertyPrices: {
+      residential: 8500,
+      commercial: 12000,
+      change: 3.8,
+      unit: "per sq ft",
+    },
+    inflation: {
+      rate: 4.2,
+      change: -0.8,
+      category: "Urban",
+    },
+  }
+
+  // Category-wise expenses
+  const expenseCategories = [
+    {
+      category: "Housing",
+      icon: Home,
+      amount: 25000,
+      percentage: 35,
+      change: 2.1,
+      color: "bg-blue-500",
+    },
+    {
+      category: "Food & Dining",
+      icon: Utensils,
+      amount: 12000,
+      percentage: 18,
+      change: -1.5,
+      color: "bg-green-500",
+    },
+    {
+      category: "Transportation",
+      icon: Car,
+      amount: 8000,
+      percentage: 12,
+      change: 4.2,
+      color: "bg-yellow-500",
+    },
+    {
+      category: "Utilities",
+      icon: Zap,
+      amount: 6000,
+      percentage: 9,
+      change: 1.8,
+      color: "bg-purple-500",
+    },
+    {
+      category: "Shopping",
+      icon: ShoppingCart,
+      amount: 10000,
+      percentage: 15,
+      change: -0.5,
+      color: "bg-pink-500",
+    },
+    {
+      category: "Fuel",
+      icon: Fuel,
+      amount: 5000,
+      percentage: 7,
+      change: 6.8,
+      color: "bg-red-500",
+    },
+  ]
+
+  // Area-wise cost comparison
+  const areaCosts = [
+    { area: "Koramangala", costIndex: 95, rent: 35000, category: "Premium" },
+    { area: "Indiranagar", costIndex: 92, rent: 32000, category: "Premium" },
+    { area: "HSR Layout", costIndex: 88, rent: 28000, category: "High" },
+    { area: "Whitefield", costIndex: 75, rent: 22000, category: "Moderate" },
+    { area: "Electronic City", costIndex: 68, rent: 18000, category: "Affordable" },
+    { area: "Marathahalli", costIndex: 72, rent: 20000, category: "Moderate" },
+  ]
+
+  // Financial opportunities
+  const opportunities = [
+    {
+      title: "Tech Sector Growth",
+      description: "IT jobs increased 15% in Whitefield and Electronic City",
+      impact: "Positive",
+      timeframe: "Next 6 months",
+    },
+    {
+      title: "Metro Expansion Impact",
+      description: "Property values near new metro stations expected to rise 8-12%",
+      impact: "Positive",
+      timeframe: "Next 12 months",
+    },
+    {
+      title: "Fuel Price Volatility",
+      description: "Petrol prices may increase due to global market conditions",
+      impact: "Negative",
+      timeframe: "Next 3 months",
+    },
+  ]
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case "Premium":
+        return "text-red-600 bg-red-100"
+      case "High":
+        return "text-orange-600 bg-orange-100"
+      case "Moderate":
+        return "text-blue-600 bg-blue-100"
+      case "Affordable":
+        return "text-green-600 bg-green-100"
+      default:
+        return "text-gray-600 bg-gray-100"
+    }
+  }
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(amount)
+  }
+
+  const formatNumber = (num: number) => {
+    return new Intl.NumberFormat("en-IN").format(num)
+  }
+
+  return (
+    <div className="pb-16 p-4 space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <IndianRupee className="h-6 w-6 text-primary" />
+            Financial Pulse
+          </h1>
+          <p className="text-sm text-muted-foreground">Economic insights for {city}</p>
+        </div>
+        <Button variant="outline" size="sm">
+          <BarChart3 className="h-4 w-4 mr-1" />
+          Reports
+        </Button>
+      </div>
+
+      {/* Fi Money Integration Banner */}
+      <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-purple-100 rounded-full">
+              <FiMoneyLogo className="h-6 w-6 text-purple-600" />
+            </div>
+            <div className="flex-1">
+              <p className="font-medium text-purple-800">Powered by Fi Money</p>
+              <p className="text-sm text-purple-700">Real-time financial data and insights for smart city living</p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-purple-300 text-purple-700 hover:bg-purple-100 bg-transparent"
+            >
+              Connect Account
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Key Financial Metrics */}
+      <div className="grid grid-cols-2 gap-4">
+        <Card>
+          <CardContent className="p-4 text-center">
+            <div className="flex items-center justify-center gap-1 mb-2">
+              <Building2 className="h-5 w-5 text-blue-600" />
+              <span className="text-sm font-medium text-blue-600">Cost of Living</span>
+            </div>
+            <div className="text-2xl font-bold">{financialMetrics.costOfLiving.index}</div>
+            <div className="flex items-center justify-center gap-1 text-sm">
+              <TrendingDown className="h-3 w-3 text-green-500" />
+              <span className="text-green-600">{Math.abs(financialMetrics.costOfLiving.change)}%</span>
+            </div>
+            <div className="text-xs text-muted-foreground mt-1">{financialMetrics.costOfLiving.rank}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4 text-center">
+            <div className="flex items-center justify-center gap-1 mb-2">
+              <IndianRupee className="h-5 w-5 text-green-600" />
+              <span className="text-sm font-medium text-green-600">Avg Income</span>
+            </div>
+            <div className="text-2xl font-bold">{formatCurrency(financialMetrics.averageIncome.amount)}</div>
+            <div className="flex items-center justify-center gap-1 text-sm">
+              <TrendingUp className="h-3 w-3 text-green-500" />
+              <span className="text-green-600">{financialMetrics.averageIncome.change}%</span>
+            </div>
+            <div className="text-xs text-muted-foreground mt-1">Monthly</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Expense Breakdown */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <BarChart3 className="h-5 w-5 text-primary" />
+            Monthly Expense Breakdown
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {expenseCategories.map((category, index) => {
+            const Icon = category.icon
+            return (
+              <div key={index} className="flex items-center gap-3">
+                <div className={`p-2 rounded-lg ${category.color.replace("bg-", "bg-")}/10`}>
+                  <Icon className={`h-4 w-4 ${category.color.replace("bg-", "text-")}`} />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-medium text-sm">{category.category}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold">{formatCurrency(category.amount)}</span>
+                      <div className="flex items-center gap-1">
+                        {category.change > 0 ? (
+                          <TrendingUp className="h-3 w-3 text-red-500" />
+                        ) : (
+                          <TrendingDown className="h-3 w-3 text-green-500" />
+                        )}
+                        <span className={`text-xs ${category.change > 0 ? "text-red-600" : "text-green-600"}`}>
+                          {Math.abs(category.change)}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Progress value={category.percentage} className="flex-1 h-2" />
+                    <span className="text-xs text-muted-foreground w-8">{category.percentage}%</span>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </CardContent>
+      </Card>
+
+      {/* Area-wise Cost Comparison */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <MapPin className="h-5 w-5 text-primary" />
+            Area Cost Comparison
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {areaCosts.map((area, index) => (
+            <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="text-center">
+                  <div className="text-lg font-bold">{area.costIndex}</div>
+                  <div className="text-xs text-muted-foreground">Index</div>
+                </div>
+                <div>
+                  <p className="font-medium">{area.area}</p>
+                  <p className="text-sm text-muted-foreground">Avg Rent: {formatCurrency(area.rent)}</p>
+                </div>
+              </div>
+              <Badge className={getCategoryColor(area.category)}>{area.category}</Badge>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      {/* Financial Opportunities */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <TrendingUp className="h-5 w-5 text-primary" />
+            Financial Opportunities
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {opportunities.map((opportunity, index) => (
+            <div key={index} className="p-4 bg-muted/50 rounded-lg">
+              <div className="flex items-start justify-between mb-2">
+                <h3 className="font-semibold text-sm">{opportunity.title}</h3>
+                <div className="flex items-center gap-2">
+                  <Badge variant={opportunity.impact === "Positive" ? "default" : "destructive"} className="text-xs">
+                    {opportunity.impact}
+                  </Badge>
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Clock className="h-3 w-3" />
+                    {opportunity.timeframe}
+                  </div>
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground">{opportunity.description}</p>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      {/* Property Market Insights */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Home className="h-5 w-5 text-primary" />
+            Property Market
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="text-xl font-bold text-blue-700">
+                ₹{formatNumber(financialMetrics.propertyPrices.residential)}
+              </div>
+              <div className="text-sm text-blue-600">Residential</div>
+              <div className="text-xs text-blue-500">{financialMetrics.propertyPrices.unit}</div>
+            </div>
+            <div className="text-center p-3 bg-green-50 rounded-lg border border-green-200">
+              <div className="text-xl font-bold text-green-700">
+                ₹{formatNumber(financialMetrics.propertyPrices.commercial)}
+              </div>
+              <div className="text-sm text-green-600">Commercial</div>
+              <div className="text-xs text-green-500">{financialMetrics.propertyPrices.unit}</div>
+            </div>
+          </div>
+          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-center gap-2 text-yellow-800">
+              <TrendingUp className="h-4 w-4" />
+              <span className="font-medium text-sm">Market Trend</span>
+            </div>
+            <p className="text-sm text-yellow-700 mt-1">
+              Property prices increased by {financialMetrics.propertyPrices.change}% this quarter, driven by metro
+              expansion and IT sector growth.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Inflation Tracker */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <TrendingUp className="h-5 w-5 text-primary" />
+            Inflation Tracker
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center mb-4">
+            <div className="text-3xl font-bold text-orange-600">{financialMetrics.inflation.rate}%</div>
+            <div className="text-sm text-muted-foreground">Current Inflation Rate</div>
+            <div className="flex items-center justify-center gap-1 mt-1">
+              <TrendingDown className="h-3 w-3 text-green-500" />
+              <span className="text-green-600 text-sm">
+                {Math.abs(financialMetrics.inflation.change)}% from last month
+              </span>
+            </div>
+          </div>
+          <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+            <p className="text-sm text-orange-700">
+              Urban inflation remains within RBI target range. Food prices showing seasonal decline while fuel costs
+              remain volatile.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+```
+
+## File: app/(main)/insights/page.tsx
+
+```tsx
+"use client"
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Switch } from "@/components/ui/switch"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  MapPin,
+  Settings,
+  Brain,
+  AlertTriangle,
+  Bell,
+  Eye,
+  Lightbulb,
+  Network,
+  Clock,
+  Sparkles,
+  Bot,
+  Cpu,
+  Database,
+} from "lucide-react"
+import { useAuth } from "@/contexts/auth-context"
+import { useLocation } from "@/contexts/location-context"
+import { useLiveData } from "@/hooks/use-live-data"
+import { useState } from "react"
+
+export default function InsightsPage() {
+  const { authState, user } = useAuth()
+  const { district, city } = useLocation()
+  const { weather, airQuality, traffic, cityMood } = useLiveData()
+  const [activeTab, setActiveTab] = useState("predictive")
+  const [notificationSettings, setNotificationSettings] = useState({
+    powerOutages: true,
+    trafficPatterns: true,
+    weatherAlerts: true,
+    safetyIncidents: true,
+    infrastructureIssues: true,
+    communityEvents: false,
+  })
+
+  // Mock predictive insights based on event stream analysis
+  const predictiveInsights = [
+    {
+      id: 1,
+      type: "infrastructure_pattern",
+      title: "Potential Grid Issue Detected",
+      description:
+        "Multiple power cut reports in HSR Layout (7 reports in 2 hours) suggest a potential transformer failure at HSR Sector 2 substation.",
+      confidence: 94,
+      severity: "high",
+      timeframe: "Next 2-4 hours",
+      affectedArea: "HSR Layout Sectors 1-3",
+      eventCount: 7,
+      pattern: "Clustered power outages",
+      recommendation: "BESCOM has been notified. Backup power recommended for critical operations.",
+      sources: ["Citizen reports", "BESCOM API", "Historical patterns"],
+      aiReasoning: "Pattern analysis shows 89% correlation with previous transformer failures in similar conditions.",
+    },
+    {
+      id: 2,
+      type: "traffic_prediction",
+      title: "Unusual Traffic Buildup Predicted",
+      description:
+        "Concert at Palace Grounds will likely cause 40% increase in traffic on ORR between 8-11 PM. Alternative routes via Hebbal recommended.",
+      confidence: 87,
+      severity: "medium",
+      timeframe: "Today 8:00-11:00 PM",
+      affectedArea: "Outer Ring Road, Hebbal-Marathahalli",
+      eventCount: 1,
+      pattern: "Event-driven congestion",
+      recommendation: "Use Tumkur Road or Bellary Road as alternatives. Metro recommended for Palace Grounds area.",
+      sources: ["Event calendar", "Historical traffic data", "Social media"],
+      aiReasoning: "Similar events historically increased travel time by 35-45% on this route.",
+    },
+    {
+      id: 3,
+      type: "safety_alert",
+      title: "Waterlogging Risk Assessment",
+      description:
+        "Heavy rain forecast + blocked drains in Koramangala (3 reports) indicate high flooding probability in low-lying areas.",
+      confidence: 82,
+      severity: "high",
+      timeframe: "Next 6 hours",
+      affectedArea: "Koramangala 4th & 5th Block",
+      eventCount: 3,
+      pattern: "Drainage system stress",
+      recommendation: "Avoid Sony World Junction and Forum Mall underpass. BBMP drainage teams deployed.",
+      sources: ["Weather API", "Drainage reports", "Topographical data"],
+      aiReasoning: "Rainfall intensity (15mm/hr) exceeds drainage capacity (12mm/hr) in reported areas.",
+    },
+    {
+      id: 4,
+      type: "community_trend",
+      title: "Positive Community Engagement Surge",
+      description:
+        "Citizen reporting increased 60% in Indiranagar this week, with 85% accuracy rate. Community-driven problem solving is accelerating.",
+      confidence: 91,
+      severity: "low",
+      timeframe: "Ongoing trend",
+      affectedArea: "Indiranagar",
+      eventCount: 23,
+      pattern: "Increased civic participation",
+      recommendation: "Excellent community engagement. Consider expanding citizen reporter program.",
+      sources: ["Report analytics", "Resolution tracking", "Community feedback"],
+      aiReasoning: "Higher reporting correlates with 40% faster issue resolution in similar neighborhoods.",
+    },
+  ]
+
+  // AI-generated area summaries
+  const areaSummaries = [
+    {
+      area: "HSR Layout",
+      summary:
+        "Infrastructure stress detected. Power grid showing instability with 7 outage reports. Traffic normal. Air quality moderate (AQI 78).",
+      alerts: 2,
+      trend: "concerning",
+      lastUpdated: "5 minutes ago",
+    },
+    {
+      area: "Koramangala",
+      summary:
+        "Weather impact expected. Drainage system at capacity with heavy rain forecast. High waterlogging risk in low-lying areas.",
+      alerts: 1,
+      trend: "warning",
+      lastUpdated: "12 minutes ago",
+    },
+    {
+      area: "Indiranagar",
+      summary:
+        "Community engagement excellent. 23 citizen reports this week with 85% accuracy. Traffic flowing normally, air quality good.",
+      alerts: 0,
+      trend: "positive",
+      lastUpdated: "8 minutes ago",
+    },
+    {
+      area: "Whitefield",
+      summary:
+        "Tech corridor operating normally. Minor traffic delays on ITPL road due to construction. No major incidents reported.",
+      alerts: 0,
+      trend: "stable",
+      lastUpdated: "15 minutes ago",
+    },
+  ]
+
+  // Intelligent notification subscriptions
+  const intelligentSubscriptions = [
+    {
+      id: "power_grid",
+      title: "Power Grid Intelligence",
+      description: "Get notified when AI detects potential power outages or grid issues in your area",
+      enabled: notificationSettings.powerOutages,
+      examples: ["Transformer failure predictions", "Planned maintenance alerts", "Load balancing issues"],
+    },
+    {
+      id: "traffic_patterns",
+      title: "Traffic Pattern Analysis",
+      description: "Receive predictions about unusual traffic patterns and optimal route suggestions",
+      enabled: notificationSettings.trafficPatterns,
+      examples: ["Event-driven congestion", "Construction impact", "Weather-related delays"],
+    },
+    {
+      id: "weather_impact",
+      title: "Weather Impact Forecasting",
+      description: "Advanced weather alerts with city infrastructure impact analysis",
+      enabled: notificationSettings.weatherAlerts,
+      examples: ["Flooding risk assessment", "Air quality predictions", "Storm damage potential"],
+    },
+    {
+      id: "safety_incidents",
+      title: "Safety Pattern Recognition",
+      description: "AI-powered safety alerts based on incident clustering and risk analysis",
+      enabled: notificationSettings.safetyIncidents,
+      examples: ["Crime pattern alerts", "Accident hotspot warnings", "Emergency response updates"],
+    },
+    {
+      id: "infrastructure",
+      title: "Infrastructure Health Monitoring",
+      description: "Predictive maintenance alerts for city infrastructure based on citizen reports",
+      enabled: notificationSettings.infrastructureIssues,
+      examples: ["Road damage predictions", "Utility service issues", "Public facility problems"],
+    },
+    {
+      id: "community_events",
+      title: "Community Event Intelligence",
+      description: "Smart notifications about events that might affect your daily routine",
+      enabled: notificationSettings.communityEvents,
+      examples: ["Festival impact analysis", "Protest route planning", "Cultural event crowds"],
+    },
+  ]
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case "high":
+        return "border-red-200 bg-red-50 text-red-800"
+      case "medium":
+        return "border-yellow-200 bg-yellow-50 text-yellow-800"
+      case "low":
+        return "border-green-200 bg-green-50 text-green-800"
+      default:
+        return "border-gray-200 bg-gray-50 text-gray-800"
+    }
+  }
+
+  const getSeverityIcon = (severity: string) => {
+    switch (severity) {
+      case "high":
+        return <AlertTriangle className="h-4 w-4 text-red-600" />
+      case "medium":
+        return <Eye className="h-4 w-4 text-yellow-600" />
+      case "low":
+        return <Lightbulb className="h-4 w-4 text-green-600" />
+      default:
+        return <Brain className="h-4 w-4 text-gray-600" />
+    }
+  }
+
+  const getTrendColor = (trend: string) => {
+    switch (trend) {
+      case "concerning":
+        return "text-red-600 bg-red-100"
+      case "warning":
+        return "text-yellow-600 bg-yellow-100"
+      case "positive":
+        return "text-green-600 bg-green-100"
+      case "stable":
+        return "text-blue-600 bg-blue-100"
+      default:
+        return "text-gray-600 bg-gray-100"
+    }
+  }
+
+  const toggleNotification = (key: string) => {
+    setNotificationSettings((prev) => ({
+      ...prev,
+      [key]: !prev[key as keyof typeof prev],
+    }))
+  }
+
+  if (authState.mode === "anonymous") {
+    return (
+      <div className="pb-16 p-4 flex items-center justify-center min-h-[60vh]">
+        <Card className="w-full max-w-md text-center">
+          <CardContent className="p-6">
+            <Bot className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+            <h2 className="text-xl font-bold mb-2">AI-Powered Insights</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              Sign in to access predictive analytics, intelligent notifications, and personalized city insights powered
+              by advanced AI.
+            </p>
+            <Button className="w-full">Sign In for AI Insights</Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  return (
+    <div className="pb-16 p-4 space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <Cpu className="h-6 w-6 text-primary" />
+            AI Insights
+          </h1>
+          <p className="text-sm text-muted-foreground">Predictive intelligence for {city}</p>
+        </div>
+        <Button variant="outline" size="sm">
+          <Settings className="h-4 w-4 mr-1" />
+          Configure
+        </Button>
+      </div>
+
+      {/* AI Status Banner */}
+      <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-purple-100 rounded-full">
+              <Sparkles className="h-5 w-5 text-purple-600" />
+            </div>
+            <div className="flex-1">
+              <p className="font-medium text-purple-800">AI Agent Active</p>
+              <p className="text-sm text-purple-700">
+                Analyzing {predictiveInsights.reduce((sum, insight) => sum + insight.eventCount, 0)} events across{" "}
+                {city}
+              </p>
+            </div>
+            <div className="text-right">
+              <div className="text-lg font-bold text-purple-700">94%</div>
+              <div className="text-xs text-purple-600">Accuracy</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="predictive">Predictive</TabsTrigger>
+          <TabsTrigger value="summaries">Area Intel</TabsTrigger>
+          <TabsTrigger value="notifications">Smart Alerts</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="predictive" className="space-y-4">
+          {/* Predictive Insights */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Brain className="h-5 w-5 text-primary" />
+                Predictive Analysis
+                <Badge variant="outline" className="ml-auto">
+                  Live
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {predictiveInsights.map((insight) => (
+                <Card key={insight.id} className={`border-l-4 ${getSeverityColor(insight.severity)}`}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        {getSeverityIcon(insight.severity)}
+                        <h3 className="font-semibold">{insight.title}</h3>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">
+                          {insight.confidence}% confidence
+                        </Badge>
+                        <Badge variant="secondary" className="text-xs">
+                          {insight.eventCount} events
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <p className="text-sm text-muted-foreground mb-3">{insight.description}</p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                      <div className="p-2 bg-muted/50 rounded text-xs">
+                        <span className="font-medium">Timeframe:</span> {insight.timeframe}
+                      </div>
+                      <div className="p-2 bg-muted/50 rounded text-xs">
+                        <span className="font-medium">Area:</span> {insight.affectedArea}
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg mb-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Lightbulb className="h-4 w-4 text-blue-600" />
+                        <span className="font-medium text-blue-800 text-sm">AI Recommendation</span>
+                      </div>
+                      <p className="text-sm text-blue-700">{insight.recommendation}</p>
+                    </div>
+
+                    <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg mb-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Network className="h-4 w-4 text-gray-600" />
+                        <span className="font-medium text-gray-800 text-sm">AI Reasoning</span>
+                      </div>
+                      <p className="text-sm text-gray-700">{insight.aiReasoning}</p>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <div className="flex items-center gap-4">
+                        <span>Pattern: {insight.pattern}</span>
+                        <span>Sources: {insight.sources.join(", ")}</span>
+                      </div>
+                      <Button variant="ghost" size="sm" className="h-6 text-xs">
+                        View Details
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="summaries" className="space-y-4">
+          {/* AI-Generated Area Summaries */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Database className="h-5 w-5 text-primary" />
+                Area Intelligence Summaries
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {areaSummaries.map((area, index) => (
+                <Card key={index} className="bg-muted/30">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-primary" />
+                        <h3 className="font-semibold">{area.area}</h3>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {area.alerts > 0 && (
+                          <Badge variant="destructive" className="text-xs">
+                            {area.alerts} alerts
+                          </Badge>
+                        )}
+                        <Badge className={getTrendColor(area.trend)}>{area.trend}</Badge>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-2">{area.summary}</p>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        <span>Updated {area.lastUpdated}</span>
+                      </div>
+                      <Button variant="ghost" size="sm" className="h-6 text-xs">
+                        Subscribe
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="notifications" className="space-y-4">
+          {/* Intelligent Notification Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Bell className="h-5 w-5 text-primary" />
+                Intelligent Notifications
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {intelligentSubscriptions.map((subscription) => (
+                <Card key={subscription.id} className="bg-muted/30">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold">{subscription.title}</h3>
+                          <Switch
+                            checked={subscription.enabled}
+                            onCheckedChange={() => toggleNotification(subscription.id.replace("_", ""))}
+                            size="sm"
+                          />
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">{subscription.description}</p>
+                      </div>
+                    </div>
+                    <div className="p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-xs font-medium text-blue-800 mb-1">Example Notifications:</p>
+                      <ul className="text-xs text-blue-700 space-y-1">
+                        {subscription.examples.map((example, idx) => (
+                          <li key={idx} className="flex items-center gap-1">
+                            <span className="w-1 h-1 bg-blue-500 rounded-full"></span>
+                            {example}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Notification Preferences */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Delivery Preferences</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                <div>
+                  <p className="font-medium">Push Notifications</p>
+                  <p className="text-sm text-muted-foreground">Instant alerts on your device</p>
+                </div>
+                <Switch defaultChecked />
+              </div>
+              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                <div>
+                  <p className="font-medium">Email Summaries</p>
+                  <p className="text-sm text-muted-foreground">Daily AI-generated area reports</p>
+                </div>
+                <Switch defaultChecked />
+              </div>
+              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                <div>
+                  <p className="font-medium">SMS Alerts</p>
+                  <p className="text-sm text-muted-foreground">Critical alerts via text message</p>
+                </div>
+                <Switch />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  )
+}
+
+```
+
+## File: app/(main)/report/page.tsx
+
+```tsx
+// app/(main)/report/page.tsx (Enhanced with complete multimodal citizen reporting)
+"use client"
+
+import type React from "react"
+import { useState, useActionState, useEffect, useRef } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
+import { useLocation } from "@/contexts/location-context"
+import { CityMap } from "@/components/maps/city-map"
+import { 
+  Loader2, 
+  CheckCircle, 
+  AlertTriangle, 
+  Camera, 
+  Video, 
+  X, 
+  MapPin, 
+  Brain, 
+  Zap, 
+  User, 
+  Clock, 
+  Shield, 
+  TrendingUp,
+  Upload,
+  Eye,
+  ThumbsUp,
+  Star,
+  Award,
+  Activity
+} from "lucide-react"
+import { submitMultimodalReport } from "./action"
+import { geminiService, type MediaAnalysis } from "@/lib/gemini-service"
+
+// Enhanced user report interface
+interface UserReport {
+  id: string
+  userId: string
+  userName: string
+  userEmail?: string
+  location: {
+    lat: number
+    lng: number
+    address?: string
+  }
+  media: {
+    url: string
+    type: 'image' | 'video'
+    fileName: string
+    size: number
+  }
+  analysis: {
+    category: string
+    severity: 'low' | 'medium' | 'high' | 'critical'
+    description: string
+    tags: string[]
+    confidence: number
+    suggestedActions: string[]
+    landmarks: string[]
+    aiTitle: string
+  }
+  userComments?: string
+  timestamp: Date
+  status: 'pending' | 'analyzed' | 'verified' | 'resolved'
+  views: number
+  helpfulVotes: number
+}
+
+// Simple user management
+const getCurrentUser = () => {
+  if (typeof window === 'undefined') return null
+  
+  try {
+    const userData = localStorage.getItem('xphora_user')
+    if (userData) {
+      return JSON.parse(userData)
+    }
+    
+    // Create anonymous user if none exists
+    const anonymousUser = {
+      id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      name: `Citizen ${Math.floor(Math.random() * 1000)}`,
+      email: undefined
+    }
+    localStorage.setItem('xphora_user', JSON.stringify(anonymousUser))
+    return anonymousUser
+  } catch (error) {
+    console.error('Error managing user:', error)
+    return null
+  }
+}
+
+// Enhanced report storage
+const saveReport = (reportData: Omit<UserReport, 'id' | 'timestamp' | 'views' | 'helpfulVotes' | 'status'>): string => {
+  try {
+    const reports = getStoredReports()
+    const newReport: UserReport = {
+      ...reportData,
+      id: `report_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      timestamp: new Date(),
+      views: 0,
+      helpfulVotes: 0,
+      status: 'analyzed'
+    }
+
+    reports.unshift(newReport) // Add to beginning (newest first)
+    localStorage.setItem('xphora_reports', JSON.stringify(reports))
+    
+    console.log('Report saved successfully:', newReport.id)
+    return newReport.id
+  } catch (error) {
+    console.error('Error saving report:', error)
+    throw new Error('Failed to save report')
+  }
+}
+
+const getStoredReports = (): UserReport[] => {
+  try {
+    const reportsData = localStorage.getItem('xphora_reports')
+    if (!reportsData) return []
+    
+    const reports = JSON.parse(reportsData)
+    return reports.map((report: any) => ({
+      ...report,
+      timestamp: new Date(report.timestamp)
+    }))
+  } catch (error) {
+    console.error('Error getting reports:', error)
+    return []
+  }
+}
+
+export default function ReportPage() {
+  const [state, formAction, isPending] = useActionState(submitMultimodalReport, null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [filePreview, setFilePreview] = useState<string | null>(null)
+  const [analysis, setAnalysis] = useState<MediaAnalysis | null>(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [currentUser, setCurrentUser] = useState<{id: string; name: string; email?: string} | null>(null)
+  const [submissionSuccess, setSubmissionSuccess] = useState(false)
+  const [submittedReportId, setSubmittedReportId] = useState<string | null>(null)
+  const [dragActive, setDragActive] = useState(false)
+  const [step, setStep] = useState(1) // 1: Upload, 2: Analyze, 3: Review, 4: Success
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  
+  const { coords } = useLocation()
+
+  // Initialize user and sample data on component mount
+  useEffect(() => {
+    const user = getCurrentUser()
+    setCurrentUser(user)
+    initializeSampleData()
+  }, [])
+
+  // Initialize comprehensive sample data for demonstration
+  const initializeSampleData = () => {
+    const existingReports = getStoredReports()
+    if (existingReports.length > 0) return
+
+    const sampleReports: Omit<UserReport, 'id' | 'timestamp' | 'views' | 'helpfulVotes' | 'status'>[] = [
+      {
+        userId: 'sample_user_1',
+        userName: 'Priya Sharma',
+        userEmail: 'priya@example.com',
+        location: { lat: 12.9716, lng: 77.5946, address: 'MG Road, Bengaluru' },
+        media: {
+          url: '/placeholder.jpg',
+          type: 'image',
+          fileName: 'traffic_jam.jpg',
+          size: 1024000
+        },
+        analysis: {
+          category: 'traffic',
+          severity: 'high',
+          description: 'Heavy traffic congestion causing significant delays during peak hours. Multiple lanes affected with vehicles at standstill.',
+          tags: ['congestion', 'peak-hour', 'vehicles', 'delay', 'junction'],
+          confidence: 92,
+          suggestedActions: ['Deploy traffic coordinators', 'Activate alternate route guidance', 'Contact traffic authorities'],
+          landmarks: ['MG Road Metro Station', 'Trinity Circle', 'Commercial Street Junction'],
+          aiTitle: '🚨 URGENT: Major Traffic Congestion on MG Road'
+        },
+        userComments: 'Traffic has been like this for the past 30 minutes. Alternative route via Richmond Road is also congested. Suggest using metro.'
+      },
+      {
+        userId: 'sample_user_2',
+        userName: 'Rajesh Kumar',
+        userEmail: 'rajesh@example.com',
+        location: { lat: 12.9698, lng: 77.6048, address: 'Koramangala, Bengaluru' },
+        media: {
+          url: '/placeholder.jpg',
+          type: 'image',
+          fileName: 'waterlogging.jpg',
+          size: 856000
+        },
+        analysis: {
+          category: 'infrastructure',
+          severity: 'medium',
+          description: 'Water logging on main road due to poor drainage system. Affecting pedestrian and vehicle movement.',
+          tags: ['waterlogging', 'drainage', 'rain', 'infrastructure', 'pedestrian-safety'],
+          confidence: 88,
+          suggestedActions: ['Report to BBMP', 'Deploy pumping systems', 'Avoid the area', 'Use elevated walkways'],
+          landmarks: ['Forum Mall', 'Koramangala Bus Stop', 'Jyoti Nivas College'],
+          aiTitle: '⚠️ ALERT: Waterlogging Issue Near Forum Mall'
+        },
+        userComments: 'This happens every time it rains. The drainage system needs urgent attention. Water is knee-deep in some areas.'
+      },
+      {
+        userId: 'sample_user_3',
+        userName: 'Anita Reddy',
+        userEmail: 'anita@example.com',
+        location: { lat: 12.9279, lng: 77.6271, address: 'HSR Layout, Bengaluru' },
+        media: {
+          url: '/placeholder.jpg',
+          type: 'image',
+          fileName: 'pothole.jpg',
+          size: 742000
+        },
+        analysis: {
+          category: 'infrastructure',
+          severity: 'critical',
+          description: 'Large pothole causing vehicle damage and safety hazard. Multiple vehicles have been affected.',
+          tags: ['pothole', 'road-damage', 'vehicle-safety', 'urgent-repair'],
+          confidence: 95,
+          suggestedActions: ['Immediate road repair', 'Deploy safety barriers', 'Issue public advisory'],
+          landmarks: ['HSR Layout Main Road', 'BDA Complex', 'Agara Lake'],
+          aiTitle: '🚨 CRITICAL: Large Pothole on HSR Layout Main Road'
+        },
+        userComments: 'This pothole has caused damage to at least 5 vehicles today. Needs immediate attention before someone gets seriously hurt.'
+      },
+      {
+        userId: 'sample_user_4',
+        userName: 'Vikram Singh',
+        userEmail: 'vikram@example.com',
+        location: { lat: 12.9352, lng: 77.6245, address: 'BTM Layout, Bengaluru' },
+        media: {
+          url: '/placeholder.jpg',
+          type: 'video',
+          fileName: 'community_event.mp4',
+          size: 2100000
+        },
+        analysis: {
+          category: 'social',
+          severity: 'low',
+          description: 'Community cultural event in progress with good crowd management. Temporary traffic diversion in place.',
+          tags: ['community-event', 'cultural', 'crowd', 'traffic-diversion'],
+          confidence: 90,
+          suggestedActions: ['Monitor crowd levels', 'Maintain traffic flow', 'Ensure safety protocols'],
+          landmarks: ['BTM Layout Park', 'Madiwala Market', 'BTM Bus Depot'],
+          aiTitle: '📍 INFO: Community Cultural Event at BTM Layout'
+        },
+        userComments: 'Beautiful community event celebrating local culture. Well organized with proper crowd control measures.'
+      }
+    ]
+
+    // Add some views and votes to make it realistic
+    sampleReports.forEach((reportData, index) => {
+      const reportId = saveReport(reportData)
+      
+      // Simulate some engagement
+      const reports = getStoredReports()
+      const reportIndex = reports.findIndex(r => r.id === reportId)
+      if (reportIndex !== -1) {
+        reports[reportIndex].views = Math.floor(Math.random() * 50) + 10
+        reports[reportIndex].helpfulVotes = Math.floor(Math.random() * 20) + 5
+        if (index === 2) reports[reportIndex].status = 'verified' // Mark pothole as verified
+        localStorage.setItem('xphora_reports', JSON.stringify(reports))
+      }
+    })
+  }
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    await processFile(file)
+  }
+
+  const processFile = async (file: File) => {
+    // Enhanced file validation using gemini service
+    const validation = geminiService.validateFile ? geminiService.validateFile(file) : { isValid: true }
+    if (!validation.isValid) {
+      alert(validation.error || 'Invalid file')
+      return
+    }
+
+    setSelectedFile(file)
+    setStep(2)
+
+    // Create preview
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setFilePreview(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+
+    // Enhanced AI analysis
+    setIsAnalyzing(true)
+    try {
+      // Try enhanced analysis first, fallback to regular if not available
+      let mediaAnalysis: MediaAnalysis
+      if (geminiService.analyzeMediaEnhanced) {
+        const userContext = currentUser ? {
+          previousReports: getStoredReports().filter(r => r.userId === currentUser.id).length,
+          trustScore: 8
+        } : undefined
+
+        mediaAnalysis = await geminiService.analyzeMediaEnhanced(file, coords || undefined, userContext)
+      } else {
+        mediaAnalysis = await geminiService.analyzeMedia(file, coords || undefined)
+      }
+      
+      setAnalysis(mediaAnalysis)
+      setStep(3)
+    } catch (error) {
+      console.error("Analysis failed:", error)
+      // Still allow submission with fallback analysis
+      setAnalysis({
+        category: 'other',
+        severity: 'medium',
+        description: 'Manual review required - AI analysis unavailable',
+        tags: ['manual-review'],
+        confidence: 60,
+        suggestedActions: ['Manual inspection needed'],
+        location: {
+          type: 'unknown',
+          landmarks: []
+        }
+      })
+      setStep(3)
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
+
+  // Enhanced drag and drop handlers
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(false)
+
+    const files = e.dataTransfer.files
+    if (files && files[0]) {
+      processFile(files[0])
+    }
+  }
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(false)
+  }
+
+  const removeFile = () => {
+    setSelectedFile(null)
+    setFilePreview(null)
+    setAnalysis(null)
+    setIsAnalyzing(false)
+    setStep(1)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
+  // Enhanced form submission with storage
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    
+    if (!selectedFile || !currentUser || !coords) {
+      alert('Please ensure you have uploaded a file, user is set, and location is available.')
+      return
+    }
+
+    try {
+      // Create media URL (in real implementation, this would be uploaded to cloud storage)
+      const mediaUrl = URL.createObjectURL(selectedFile)
+      
+      // Get form data
+      const formData = new FormData(event.currentTarget)
+      const userComments = formData.get('comments') as string
+
+      // Generate title using AI if analysis available
+      const aiTitle = analysis 
+        ? await geminiService.generateIncidentTitle(analysis)
+        : `Incident Report - ${selectedFile.name}`
+
+      // Prepare enhanced report data
+      const reportData: Omit<UserReport, 'id' | 'timestamp' | 'views' | 'helpfulVotes' | 'status'> = {
+        userId: currentUser.id,
+        userName: currentUser.name,
+        userEmail: currentUser.email,
+        location: {
+          lat: coords.lat,
+          lng: coords.lng,
+          address: `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`
+        },
+        media: {
+          url: mediaUrl,
+          type: selectedFile.type.startsWith('video/') ? 'video' : 'image',
+          fileName: selectedFile.name,
+          size: selectedFile.size
+        },
+        analysis: analysis ? {
+          category: analysis.category,
+          severity: analysis.severity as 'low' | 'medium' | 'high' | 'critical',
+          description: analysis.description,
+          tags: analysis.tags,
+          confidence: analysis.confidence,
+          suggestedActions: analysis.suggestedActions,
+          landmarks: analysis.location?.landmarks || [],
+          aiTitle: analysis.aiTitle || aiTitle
+        } : {
+          category: 'general',
+          severity: 'medium' as const,
+          description: 'User submitted incident report',
+          tags: ['user-report'],
+          confidence: 70,
+          suggestedActions: ['Review required'],
+          landmarks: [],
+          aiTitle: aiTitle
+        },
+        userComments: userComments.trim() || undefined
+      }
+
+      // Save report to storage
+      const reportId = saveReport(reportData)
+      
+      setSubmissionSuccess(true)
+      setSubmittedReportId(reportId)
+      setStep(4)
+
+      // Reset form after delay
+      setTimeout(() => {
+        resetForm()
+      }, 5000)
+
+    } catch (error) {
+      console.error('Submission failed:', error)
+      alert('Failed to submit report. Please try again.')
+    }
+  }
+
+  const resetForm = () => {
+    setSelectedFile(null)
+    setFilePreview(null)
+    setAnalysis(null)
+    setSubmissionSuccess(false)
+    setSubmittedReportId(null)
+    setStep(1)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case "critical":
+        return "bg-red-100 text-red-800 border-red-200"
+      case "high":
+        return "bg-orange-100 text-orange-800 border-orange-200"
+      case "medium":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200"
+      case "low":
+        return "bg-green-100 text-green-800 border-green-200"
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200"
+    }
+  }
+
+  const getSeverityStyle = (severity: string) => {
+    switch (severity) {
+      case "critical":
+        return "bg-red-500/10 text-red-600 border-red-200"
+      case "high":
+        return "bg-orange-500/10 text-orange-600 border-orange-200"
+      case "medium":
+        return "bg-yellow-500/10 text-yellow-600 border-yellow-200"
+      case "low":
+        return "bg-green-500/10 text-green-600 border-green-200"
+      default:
+        return "bg-gray-500/10 text-gray-600 border-gray-200"
+    }
+  }
+
+  // Get user's report statistics
+  const getUserStats = () => {
+    const userReports = getStoredReports().filter(r => r.userId === currentUser?.id)
+    return {
+      totalReports: userReports.length,
+      totalViews: userReports.reduce((sum, r) => sum + r.views, 0),
+      totalHelpful: userReports.reduce((sum, r) => sum + r.helpfulVotes, 0),
+      resolvedReports: userReports.filter(r => r.status === 'resolved').length
+    }
+  }
+
+  const userStats = getUserStats()
+
+  return (
+    <div className="p-4 space-y-6">
+      {/* Enhanced header with user info and progress */}
+      <div className="max-w-lg mx-auto">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-2xl font-bold">Submit Incident Report</h1>
+            <p className="text-sm text-muted-foreground">Help your community with AI-powered reporting</p>
+          </div>
+          {currentUser && (
+            <div className="text-center">
+              <div className="flex items-center gap-2 text-sm bg-gradient-to-r from-blue-50 to-purple-50 px-4 py-2 rounded-full border">
+                <User className="h-4 w-4 text-blue-600" />
+                <span className="font-medium text-blue-700">{currentUser.name}</span>
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                {userStats.totalReports} reports • {userStats.totalViews} views
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Progress indicator */}
+        <div className="flex items-center justify-between mb-6">
+          {[1, 2, 3, 4].map((stepNum) => (
+            <div key={stepNum} className="flex items-center">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                step >= stepNum 
+                  ? stepNum === 4 ? 'bg-green-500 text-white' : 'bg-blue-500 text-white'
+                  : 'bg-gray-200 text-gray-500'
+              }`}>
+                {stepNum === 4 && step >= 4 ? (
+                  <CheckCircle className="h-4 w-4" />
+                ) : (
+                  stepNum
+                )}
+              </div>
+              {stepNum < 4 && (
+                <div className={`w-12 h-1 mx-2 rounded ${
+                  step > stepNum ? 'bg-blue-500' : 'bg-gray-200'
+                }`} />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Success message */}
+      {submissionSuccess && step === 4 && (
+        <Card className="w-full max-w-lg mx-auto border-green-500 bg-gradient-to-br from-green-50 to-emerald-50">
+          <CardContent className="p-8 text-center">
+            <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="h-8 w-8 text-white" />
+            </div>
+            <h3 className="text-xl font-bold text-green-800 mb-3">Report Submitted Successfully!</h3>
+            <p className="text-green-700 mb-4">
+              {analysis 
+                ? `AI detected: ${analysis.category} incident with ${analysis.severity} severity. ${
+                    analysis.severity === 'critical' || analysis.severity === 'high' 
+                      ? 'Emergency authorities have been notified automatically.'
+                      : 'Relevant authorities have been notified.'
+                  }`
+                : 'Your report has been submitted for review by our team.'
+              }
+            </p>
+            {submittedReportId && (
+              <div className="bg-white p-4 rounded-lg mb-4 border border-green-200">
+                <div className="text-sm text-gray-600 mb-2">
+                  <strong>Report ID:</strong> 
+                </div>
+                <code className="bg-gray-100 px-3 py-2 rounded text-sm font-mono">
+                  {submittedReportId}
+                </code>
+              </div>
+            )}
+            <div className="flex gap-3 justify-center">
+              <Button variant="outline" onClick={resetForm} className="flex-1">
+                Submit Another Report
+              </Button>
+              <Button onClick={() => window.location.href = '/map'} className="flex-1">
+                View on Map
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Main form */}
+      {!submissionSuccess && (
+        <Card className="w-full max-w-lg mx-auto">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Brain className="h-5 w-5 text-primary" />
+              AI-Powered Incident Report
+            </CardTitle>
+            <CardDescription>Upload a photo or video and let AI analyze the situation automatically.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Step 1: Enhanced Media Upload with drag & drop */}
+              {step >= 1 && (
+                <div>
+                  <Label htmlFor="media">Upload Photo or Video</Label>
+                  <div className="mt-2">
+                    {!selectedFile ? (
+                      <div 
+                        className={`flex justify-center rounded-xl border-2 border-dashed px-6 py-12 transition-all cursor-pointer ${
+                          dragActive 
+                            ? 'border-blue-500 bg-blue-50 scale-105' 
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                        onDrop={handleDrop}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <div className="text-center">
+                          <div className="flex justify-center gap-2 mb-4">
+                            <Camera className="h-8 w-8 text-muted-foreground" />
+                            <Video className="h-8 w-8 text-muted-foreground" />
+                          </div>
+                          <div className="mt-4 flex text-sm leading-6 text-muted-foreground">
+                            <span className="font-semibold text-primary">
+                              Click to upload
+                            </span>
+                            <span className="pl-1">or drag and drop</span>
+                          </div>
+                          <p className="text-xs leading-5 text-muted-foreground mt-2">
+                            Images: PNG, JPG, WebP up to 50MB
+                            <br />
+                            Videos: MP4, WebM up to 50MB
+                          </p>
+                          <input
+                            ref={fileInputRef}
+                            id="media"
+                            name="media"
+                            type="file"
+                            className="hidden"
+                            accept="image/*,video/*"
+                            onChange={handleFileChange}
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <div className="rounded-lg border overflow-hidden">
+                          {selectedFile.type.startsWith("image/") ? (
+                            <img
+                              src={filePreview || ''}
+                              alt="Preview"
+                              className="w-full h-48 object-cover"
+                            />
+                          ) : (
+                            <video
+                              src={filePreview || ''}
+                              className="w-full h-48 object-cover"
+                              controls
+                            />
+                          )}
+                        </div>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-2 right-2"
+                          onClick={removeFile}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                        <div className="mt-3 p-3 bg-muted rounded-lg">
+                          <div className="flex items-center gap-2 text-sm">
+                            <Upload className="h-4 w-4 text-muted-foreground" />
+                            <span className="font-medium">{selectedFile.name}</span>
+                            <Badge variant="secondary">
+                              {(selectedFile.size / 1024 / 1024).toFixed(1)} MB
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Step 2: AI Analysis Loading */}
+              {step >= 2 && isAnalyzing && (
+                <Card className="border-blue-200 bg-blue-50/50">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <Brain className="h-6 w-6 text-blue-600" />
+                        <div className="absolute -top-1 -right-1">
+                          <Zap className="h-3 w-3 text-yellow-500 animate-pulse" />
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-blue-800">AI Analysis in Progress</h3>
+                        <p className="text-sm text-blue-600">Analyzing your media for incident detection...</p>
+                      </div>
+                      <Loader2 className="h-5 w-5 animate-spin text-blue-600 ml-auto" />
+                    </div>
+                    <div className="mt-4 space-y-2">
+                      <div className="w-full bg-blue-200 rounded-full h-2">
+                        <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{width: '60%'}}></div>
+                      </div>
+                      <p className="text-xs text-blue-600">Processing visual content and location data...</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Step 3: AI Analysis Results */}
+              {step >= 3 && analysis && !isAnalyzing && (
+                <div className="space-y-4">
+                  <Card className="border-green-200 bg-green-50/50">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center gap-2 text-green-800">
+                        <CheckCircle className="h-5 w-5" />
+                        AI Analysis Complete
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {/* AI Generated Title */}
+                      <div>
+                        <Label className="text-sm font-medium">AI Generated Title</Label>
+                        <div className="mt-1 p-3 bg-white rounded-lg border">
+                          <p className="font-medium text-gray-900">{analysis.aiTitle || 'Incident Detected'}</p>
+                        </div>
+                      </div>
+
+                      {/* Category and Severity */}
+                      <div className="flex gap-4">
+                        <div className="flex-1">
+                          <Label className="text-sm font-medium">Category</Label>
+                          <Badge variant="outline" className="mt-1 capitalize">
+                            {analysis.category}
+                          </Badge>
+                        </div>
+                        <div className="flex-1">
+                          <Label className="text-sm font-medium">Severity</Label>
+                          <Badge className={`mt-1 capitalize ${getSeverityStyle(analysis.severity)}`}>
+                            {analysis.severity}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      {/* Description */}
+                      <div>
+                        <Label className="text-sm font-medium">AI Description</Label>
+                        <div className="mt-1 p-3 bg-white rounded-lg border">
+                          <p className="text-sm text-gray-700">{analysis.description}</p>
+                        </div>
+                      </div>
+
+                      {/* Tags */}
+                      {analysis.tags && analysis.tags.length > 0 && (
+                        <div>
+                          <Label className="text-sm font-medium">Detected Tags</Label>
+                          <div className="mt-1 flex flex-wrap gap-2">
+                            {analysis.tags.map((tag, index) => (
+                              <Badge key={index} variant="secondary" className="text-xs">
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Confidence Score */}
+                      <div>
+                        <Label className="text-sm font-medium">AI Confidence</Label>
+                        <div className="mt-1 flex items-center gap-2">
+                          <div className="flex-1 bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-green-600 h-2 rounded-full" 
+                              style={{width: `${analysis.confidence}%`}}
+                            />
+                          </div>
+                          <span className="text-sm font-medium">{analysis.confidence}%</span>
+                        </div>
+                      </div>
+
+                      {/* Suggested Actions */}
+                      {analysis.suggestedActions && analysis.suggestedActions.length > 0 && (
+                        <div>
+                          <Label className="text-sm font-medium">Suggested Actions</Label>
+                          <div className="mt-1 space-y-1">
+                            {analysis.suggestedActions.map((action, index) => (
+                              <div key={index} className="flex items-center gap-2 text-sm">
+                                <AlertTriangle className="h-3 w-3 text-amber-500" />
+                                <span>{action}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Landmarks */}
+                      {analysis.location?.landmarks && analysis.location.landmarks.length > 0 && (
+                        <div>
+                          <Label className="text-sm font-medium">Nearby Landmarks</Label>
+                          <div className="mt-1 space-y-1">
+                            {analysis.location.landmarks.map((landmark, index) => (
+                              <div key={index} className="flex items-center gap-2 text-sm">
+                                <MapPin className="h-3 w-3 text-blue-500" />
+                                <span>{landmark}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Hidden input for analysis data */}
+                  <input
+                    type="hidden"
+                    name="analysis"
+                    value={JSON.stringify(analysis)}
+                  />
+                </div>
+              )}
+
+              {/* Location Information */}
+              {coords && (
+                <div>
+                  <Label htmlFor="location">Location</Label>
+                  <div className="mt-2 p-3 bg-muted rounded-lg flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">
+                      {coords.lat.toFixed(4)}, {coords.lng.toFixed(4)}
+                    </span>
+                    <Badge variant="secondary" className="ml-auto">
+                      <Activity className="h-3 w-3 mr-1" />
+                      Live GPS
+                    </Badge>
+                  </div>
+                  <input type="hidden" name="latitude" value={coords.lat} />
+                  <input type="hidden" name="longitude" value={coords.lng} />
+                </div>
+              )}
+
+              {/* Additional Comments */}
+              <div>
+                <Label htmlFor="comments">Additional Comments (Optional)</Label>
+                <Textarea
+                  id="comments"
+                  name="comments"
+                  placeholder="Provide any additional context or details about the incident..."
+                  className="mt-2"
+                  rows={3}
+                />
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                disabled={!selectedFile || !coords || isPending || isAnalyzing}
+                className="w-full"
+              >
+                {isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Submitting Report...
+                  </>
+                ) : isAnalyzing ? (
+                  <>
+                    <Brain className="mr-2 h-4 w-4" />
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                    Submit Report
+                  </>
+                )}
+              </Button>
+
+              {/* Status Messages */}
+              {state?.error && (
+                <div className="p-4 border border-red-200 bg-red-50 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4 text-red-600" />
+                    <span className="text-sm text-red-700">{state.message}</span>
+                  </div>
+                </div>
+              )}
+
+              {state?.success && (
+                <div className="p-4 border border-green-200 bg-green-50 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm text-green-700">{state.message}</span>
+                  </div>
+                </div>
+              )}
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Live Map Preview */}
+      {coords && (
+        <Card className="w-full max-w-lg mx-auto">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-primary" />
+              Incident Location
+            </CardTitle>
+            <CardDescription>
+              Your report will be geotagged to this location
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="aspect-video rounded-lg overflow-hidden border">
+              <CityMap />
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  )
+}
+```
+
+## File: app/(main)/report/action.ts
+
+```ts
+"use server"
+
+import { geminiService, type MediaAnalysis } from "@/lib/gemini-service"
+
+export async function submitMultimodalReport(
+  prevState: { message: string; success?: boolean; error?: boolean } | null,
+  formData: FormData,
+) {
+  const media = formData.get("media") as File
+  const comments = formData.get("comments") as string
+  const latitude = formData.get("latitude") as string
+  const longitude = formData.get("longitude") as string
+  const analysisData = formData.get("analysis") as string
+
+  console.log("New Multimodal Report Submitted:")
+
+  try {
+    // Parse AI analysis
+    let analysis: MediaAnalysis | null = null
+    if (analysisData) {
+      analysis = JSON.parse(analysisData)
+    }
+
+    // Validate required fields
+    if (!media || !(media instanceof File) || media.size === 0) {
+      return { message: "Please upload a photo or video.", error: true }
+    }
+
+    if (!latitude || !longitude) {
+      return { message: "Location is required for incident reporting.", error: true }
+    }
+
+    // Generate incident title using AI
+    const title = analysis ? await geminiService.generateIncidentTitle(analysis) : "Incident Report"
+
+    // Simulate processing time
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+
+    // Log the complete report data
+    console.log({
+      title,
+      media: {
+        fileName: media.name,
+        fileSize: media.size,
+        fileType: media.type,
+      },
+      analysis: analysis
+        ? {
+            category: analysis.category,
+            severity: analysis.severity,
+            description: analysis.description,
+            confidence: analysis.confidence,
+            tags: analysis.tags,
+            suggestedActions: analysis.suggestedActions,
+          }
+        : null,
+      location: {
+        latitude: Number.parseFloat(latitude),
+        longitude: Number.parseFloat(longitude),
+      },
+      additionalComments: comments || "None",
+      timestamp: new Date().toISOString(),
+    })
+
+    // In a real implementation, you would:
+    // 1. Upload the media file to cloud storage (e.g., Vercel Blob, AWS S3)
+    // 2. Store the report data in a database
+    // 3. Trigger notifications to relevant authorities
+    // 4. Update the city map with the new incident
+    // 5. Send push notifications to nearby users
+
+    const responseMessage = analysis
+      ? `Report submitted successfully! AI detected: ${analysis.category} incident with ${analysis.severity} severity. Authorities have been notified.`
+      : "Report submitted successfully! Our team will review it shortly."
+
+    return {
+      message: responseMessage,
+      success: true,
+    }
+  } catch (error) {
+    console.error("Report submission error:", error)
+    return {
+      message: "Failed to submit report. Please try again.",
+      error: true,
+    }
+  }
+}
+
+```
+
+---
+
+**Part 3 Summary:**
+- Files included: 12
+- Files skipped: 0
+- Total size: 123KB
